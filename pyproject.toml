@@ -1,0 +1,14 @@
+[project]
+name = "e-commerce-price-tracker"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.14.3",
+    "flask==3.1.0",
+    "pandas>=3.0.2",
+    "pymysql>=1.1.2",
+    "requests>=2.33.1",
+    "sqlalchemy>=2.0.49",
+]
