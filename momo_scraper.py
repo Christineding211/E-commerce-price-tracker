@@ -1,6 +1,6 @@
 import requests
 # import pandas as pd
-import bs4 as bs
+# import bs4 as bs
 import json
 from datetime import datetime
 import time

@@ -1,0 +1,88 @@
+import pandas as pd
+import requests
+import time
+from datetime import datetime
+from crawler.worker import app # 記得匯入 Celery app
+
+# 加上裝飾器，讓它變成可派送的任務
+@app.task()
+def crawler_pchome_print(brand_name, search_keyword):
+    print(f"--- 工人開始執行任務: 尋找 {brand_name} ---")
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36',
+        'content-type': 'application/json'
+    }
+    url = 'https://ecshweb.pchome.com.tw/search/v4.3/all/results'
+
+    
+    NOISE_CANCEL_ATTR = "G25I21304"
+
+    
+    # 注意：這個 total_result 必須放在函式裡面！
+    # 這樣每個工人 (每個 Task) 才會擁有自己獨立的清單，不會跟別人打架
+    total_result = []
+
+    params = {
+        'q': search_keyword,
+        'attr': NOISE_CANCEL_ATTR,
+        'price': "2000-9000",
+        'page': 1,
+        'pageCount': 40
+    }
+    
+    try:
+        resp = requests.get(url, headers=headers, params=params)
+        if resp.status_code != 200:
+            print(f"警告：{brand_name} 請求失敗，狀態碼：{resp.status_code}")
+            return "Failed"
+
+        first_res = resp.json()
+        total_page = first_res.get("TotalPage", 1)
+        print(f"{brand_name} 總共有 {total_page} 頁")
+
+        # 開始分頁爬取
+        for page in range(1, total_page + 1):
+            params['page'] = page
+            data = requests.get(url, headers=headers, params=params).json()
+            products = data.get('Prods', [])
+
+            if not products:
+                print(f"第 {page} 頁沒有商品，結束 {brand_name} 抓取。")
+                break
+
+            for product in products:
+                name_tag = product.get('Name', '未知').strip()
+                id_tag = product.get('Id', '')
+                price_tag = product.get('Price', 0)
+                raw_rating = product.get('ratingValue', 0)
+                
+                try:
+                    rating_tag = float(raw_rating) if raw_rating else 0.0
+                except (ValueError, TypeError):
+                    rating_tag = 0.0
+
+                row = {
+                    'Brand': brand_name,
+                    'Name': name_tag,
+                    'ID': id_tag,
+                    'Price': int(price_tag),
+                    'Rating': rating_tag,
+                    'Source': 'PChome',
+                    'scraped_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }
+                total_result.append(row)
+                
+            print(f"{brand_name} 第 {page} 頁抓取完，累計 {len(total_result)} 筆商品")
+            time.sleep(1) # 溫柔爬蟲，保護自己也保護伺服器
+
+        # 轉成 DataFrame 並印出 (測試階段先不寫入資料庫)
+        df = pd.DataFrame(total_result)
+        print(f"\n=== {brand_name} 任務結束，共獲取 {len(df)} 筆資料 ===")
+        print(df.head()) # 印出前五筆看看長相
+        
+        return f"{brand_name} success"
+
+    except Exception as e:
+        print(f"正在抓取 {brand_name} 時發生問題: {e}")
+        return "Error"
