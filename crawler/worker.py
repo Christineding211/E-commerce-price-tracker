@@ -26,7 +26,7 @@ app = Celery(
     # include: 告訴 Celery 要載入哪些 Python 模組裡的 task
     # 只有列在這裡的模組, 裡面用 @app.task 裝飾的函式才會被註冊為可執行任務
     include=[
-        "crawler.tasks",  # 一般任務
+        "crawler.task",  # 一般任務
         "crawler.tasks_crawler" #爬蟲任務
     ],
     # broker: 指定訊息中介的連線網址, Celery 會把任務送到這裡排隊
