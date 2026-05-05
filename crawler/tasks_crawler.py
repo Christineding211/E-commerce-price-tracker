@@ -115,8 +115,10 @@ def scrape_momo(brand_name, keywords):
     try:
         first_res = requests.post(url, headers = headers, json = payload)
         if first_res.status_code != 200:
-            print(f"請求失敗{brand_name}, status_code :{first_res.status_code}")
-            continue
+            error_msg = f"❌ 請求失敗 {brand_name}, 代碼: {first_res.status_code}"
+            print(error_msg)
+            return error_msg  #在 Flower 的結果欄位會看到這串字
+        
         first_res=  first_res.json()
         total_page = first_res.get('maxPage',1)
         
