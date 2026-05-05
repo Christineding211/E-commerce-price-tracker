@@ -20,7 +20,7 @@ for config in target_configs:
     crawler_pchome_print.delay(brand_name=config['brand'], search_keyword=config['q'])
     scrape_momo.delay(brand_name=config['brand'], keywords=config['q'])
 
-print(f"📢 8 個任務已進入倉庫...")
+print(" 8 個任務已進入倉庫...")
 
 # 3. 簡單計時邏輯：只要倉庫還有單，計時器就不停
 while True:
