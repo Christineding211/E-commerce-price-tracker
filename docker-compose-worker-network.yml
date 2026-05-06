@@ -1,0 +1,33 @@
+version: '3.0'  # 使用 Docker Compose 的版本 3.0，適合大部分部署場景
+
+services:
+  crawler_pchome: 
+    image: my-crawler:v1  # 剛建好的image
+    # 這是給這台虛擬電腦取的名字
+    hostname: "docker-pchome"
+    # 修改 command：
+    # 1. 加上 -n (或 --hostname) 讓 Celery 在 Flower 裡顯示漂亮的名字
+    # 2. 記得加上你原本的 -c 4 (併發數)，否則 Docker 預設會根據 CPU 核心數開一堆手
+    command: uv run celery -A crawler.worker worker -Q pchome_q -c 4 --hostname=celery@%h --loglevel=info
+
+    restart: always  # 若容器停止或崩潰，自動重新啟動
+    environment:
+      - TZ=Asia/Taipei  # 設定時區為台北（UTC+8）
+    networks:
+      - my_network  # 將此服務連接到 my_network 網路
+
+  crawler_pchome:
+    image: my-crawler:v1
+    hostname: "docker-momo"
+    command: uv run celery -A crawler.worker worker -Q momo_q -c 1 --hostname=cerely@%h --loglevel=info
+    
+    restart: always  # 若容器停止或崩潰，自動重新啟動
+    environment:
+       - TZ=Asia/Taipei 
+    networks:
+      - my_network 
+
+networks:
+  my_network:
+    # 加入已經存在的網路
+    external: true
