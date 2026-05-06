@@ -18,7 +18,7 @@ def run_multi_queue_test():
         #pchome通道
         crawler_pchome_print.s(brand_name = config['brand'], search_keyword = config['q']).apply_async(queue="pchome_q")
         #momo 通道
-        scrape_momo.s(brand_name = config['brand'], keywords = config['q']).apply_async(quene = 'momo_q')
+        scrape_momo.s(brand_name = config['brand'], keywords = config['q']).apply_async(queue = 'momo_q')
     
     print("任務已全數派發")
 
