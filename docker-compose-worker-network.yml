@@ -1,4 +1,4 @@
-version: '3.8'  # 使用 Docker Compose 的版本 3.0，適合大部分部署場景
+version: '3.0'  # 使用 Docker Compose 的版本 3.0，適合大部分部署場景
 
 services:
   crawler_pchome: 
@@ -29,6 +29,6 @@ services:
 
 networks:
   dev:
-    # # 告訴 Docker：直接連去現有的 rabbitmq 那條「dev」快速道路
     external: true
+    name: crawler_dev  # 強制對齊 Docker 幫你產生的那個名字
 
