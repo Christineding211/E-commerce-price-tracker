@@ -33,8 +33,8 @@ def crawler_pchome_print(brand_name, search_keyword):
     
     try:
         resp = requests.get(url, headers=headers, params=params)
-        if first_res.status_code != 200:
-            error_msg = f"❌ 請求失敗 {brand_name}, 代碼: {first_res.status_code}"
+        if resp.status_code != 200:
+            error_msg = f"❌ 請求失敗 {brand_name}, 代碼: {resp.status_code}"
             print(error_msg)
             return error_msg  #在 Flower 的結果欄位會看到這串字
 
