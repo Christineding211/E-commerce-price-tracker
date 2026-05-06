@@ -1,0 +1,28 @@
+#作業系統 # 使用 Ubuntu 22.04 作為基礎映像檔
+FROM ubuntu:22.04
+# 更新套件列表，並安裝 curl 與 ca-certificates(先下載下載器要下載東西)
+RUN apt-get update && \
+    apt-get install -y curl ca-certificates
+
+#安裝 uv（用於 Python 虛擬環境和依賴管理）
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+#把uv 安裝放在電腦系統變數裡
+ENV PATH="/root/.local/bin:${PATH}"
+
+# 使用 uv 安裝 Python 3.11
+RUN uv python install 3.11
+# 建立工作目錄 /crawler
+RUN mkdir /crawler
+# 設定容器的工作目錄為 /crawler，後續的指令都在這個目錄下執行
+WORKDIR /crawler/
+
+# 根據 uv.lock 安裝所有依賴（確保環境一致性）
+RUN uv sync --frozen
+
+# 設定語系環境變數，避免 Python 編碼問題
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
+# 啟動容器後，預設執行 bash（開啟終端）
+CMD ["/bin/bash"]
+
