@@ -14,7 +14,7 @@ services:
     environment:
       - TZ=Asia/Taipei  # 設定時區為台北（UTC+8）
     networks:
-      - dev  # 將此服務連接到 my_network 網路
+      - dev_network # 連到新網路
 
   crawler_momo:
     image: my-crawler:v1
@@ -25,10 +25,8 @@ services:
     environment:
        - TZ=Asia/Taipei 
     networks:
-      - dev 
+      - dev_network 
 
 networks:
-  dev:
+  dev_network:
     external: true
-    name: crawler_dev  # 強制對齊 Docker 幫你產生的那個名字
-
