@@ -2,7 +2,7 @@ version: '3.0'  # 使用 Docker Compose 的版本 3.0，適合大部分部署場
 
 services:
   crawler_pchome: 
-    image: my-crawler:v1  # 剛建好的image
+    image: my-crawler:v2  # 剛建好的image
     # 這是給這台虛擬電腦取的名字
     hostname: "docker-pchome"
     # 修改 command：
