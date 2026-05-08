@@ -87,7 +87,7 @@ def crawler_pchome_print(brand_name, search_keyword):
         if not df.empty:
             print(f"\n {brand_name}結束，共獲取 {len(df)} 筆資料")
 
-            upload_data_to_mysql(df, "stg_momo_prices")
+            upload_data_to_mysql(df, "stg_pchome_prices	")
             return f"{brand_name} success and uploaded"
         else:
             print(f" {brand_name} 沒有抓到資料")
@@ -163,10 +163,17 @@ def scrape_momo(brand_name, keywords):
             print(f"第{page} 頁抓取完，目前累計 {len(task_results)} 筆商品")
             time.sleep(4) # momo 比較嚴格，間隔時間長一點
 
-        # 轉成 DataFrame 並印出 (測試階段先不寫入資料庫)
+        
         df = pd.DataFrame(task_results)
-        print(f"\n=== {brand_name} 任務結束，共獲取 {len(df)} 筆資料 ===")
-        print(df.head()) 
+        
+        if not df.empty:
+            print(f"\n {brand_name}結束，共獲取 {len(df)} 筆資料")
+
+            upload_data_to_mysql(df, "stg_momo_prices")
+            return f"{brand_name} success and uploaded"
+        else:
+            print(f" {brand_name} 沒有抓到資料")
+            return f"{brand_name} no data"
 
     except Exception as e:
         print(f"正在抓取{brand_name} 時發生問題",e)
