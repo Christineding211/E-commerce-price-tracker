@@ -3,6 +3,10 @@ import requests
 import time
 from datetime import datetime
 from crawler.worker import app # 記得匯入 Celery app
+from sqlalchemy import create_engine  # 建立資料庫連線的工具（SQLAlchemy）
+
+from crawler.config import MYSQL_ACCOUNT, MYSQL_HOST, MYSQL_PASSWORD, MYSQL_PORT
+
 
 # 加上裝飾器，讓它變成可派送的任務
 @app.task()
@@ -77,12 +81,17 @@ def crawler_pchome_print(brand_name, search_keyword):
             print(f"{brand_name} 第 {page} 頁抓取完，累計 {len(total_result)} 筆商品")
             time.sleep(1) # 溫柔爬蟲，保護自己也保護伺服器
 
-        # 轉成 DataFrame 並印出 (測試階段先不寫入資料庫)
+        # 轉成 DataFrame 
         df = pd.DataFrame(total_result)
-        print(f"\n=== {brand_name} 任務結束，共獲取 {len(df)} 筆資料 ===")
-        print(df.head()) # 印出前五筆看看長相
-        
-        return f"{brand_name} success"
+
+        if not df.empty:
+            print(f"\n {brand_name}結束，共獲取 {len(df)} 筆資料")
+
+            upload_data_to_mysql(df, "stg_momo_prices")
+            return f"{brand_name} success and uploaded"
+        else:
+            print(f" {brand_name} 沒有抓到資料")
+            return f"{brand_name} no data"
 
     except Exception as e:
         print(f"正在抓取 {brand_name} 時發生問題: {e}")
@@ -163,3 +172,25 @@ def scrape_momo(brand_name, keywords):
         print(f"正在抓取{brand_name} 時發生問題",e)
 
 
+
+
+def upload_data_to_mysql(df: pd.DataFrame, table_name: str):
+    # 定義資料庫連線字串（MySQL 資料庫）
+    # 格式：mysql+pymysql://使用者:密碼@主機:port/資料庫名稱
+    # 上傳到 mydb, 同學可切換成自己的 database
+    try:
+        address = f"mysql+pymysql://{MYSQL_ACCOUNT}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/headphone_db"
+
+        # 建立 SQLAlchemy 引擎物件
+
+        engine = create_engine(address)
+
+        df.to_sql(
+            name = table_name,
+            con=engine,
+            if_exists="append",
+            index=False,
+        )
+        print(f"成功寫入 {len(df)} 筆資料至 {table_name}")
+    except Exception as e:
+        print("fail to upload to db", e)
