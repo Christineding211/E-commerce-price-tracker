@@ -13,3 +13,4 @@ def crawler(x):
     print("upload db")
     # task 的回傳值可以透過 AsyncResult.get() 取得 (若有設定 result backend)
     return x
+

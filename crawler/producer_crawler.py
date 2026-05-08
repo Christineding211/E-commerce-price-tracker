@@ -36,7 +36,7 @@ while True:
     if total_remaining == 0:
         break # 沒單了，跳出迴圈
         
-    print(f"⏳ 剩餘任務：{total_remaining} ... 繼續計時")
+    print(f"剩餘任務：{total_remaining} ... 繼續計時")
     time.sleep(2) # 每 2 秒檢查一次，
 
 end_time = time.time()

@@ -1,0 +1,20 @@
+version: '3.0'  # 使用 Docker Compose 的版本 3.0，適合大部分部署場景
+
+services:
+  producer_multi_queue:  
+    image: my-crawler:${DOCKER_IMAGE_VERSION}
+    command: uv run python crawler/producer_multi_queue.py
+    
+    #不要restart: always不要一直發任務
+    environment:
+      - TZ=Asia/Taipei  # 設定時區為台北（UTC+8）
+      - RABBITMQ_HOST=rabbitmq 
+      - PYTHONPATH=/crawler  # 告訴 Python 這裡是根目錄
+    networks:
+      - dev_network
+
+
+networks:
+  dev_network:
+    external: true
+

@@ -13,8 +13,13 @@ ENV PATH="/root/.local/bin:${PATH}"
 RUN uv python install 3.11
 # 建立工作目錄 /crawler
 RUN mkdir /crawler
+
+# 將當前目錄（與 Dockerfile 同層）所有內容複製到容器的 /crawler 資料夾
+COPY . /crawler/
+
 # 設定容器的工作目錄為 /crawler，後續的指令都在這個目錄下執行
 WORKDIR /crawler/
+
 
 # 根據 uv.lock 安裝所有依賴（確保環境一致性）
 RUN uv sync --frozen
