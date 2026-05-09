@@ -27,7 +27,7 @@ services:
           # 讓資料不會因為, container close or update, 而遺失
       networks:
           - dev_network 
-
+ 
   phpmyadmin:
       # 升級到 5.2, 支援 amd64 / arm64 (Mac M1/M2 適用)
       image: phpmyadmin:5.2

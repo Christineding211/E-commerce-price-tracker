@@ -4,6 +4,8 @@ import time
 from datetime import datetime
 from crawler.worker import app # 記得匯入 Celery app
 from sqlalchemy import create_engine  # 建立資料庫連線的工具（SQLAlchemy）
+from datetime import datetime, timedelta, timezone
+
 
 from crawler.config import MYSQL_ACCOUNT, MYSQL_HOST, MYSQL_PASSWORD, MYSQL_PORT
 
@@ -12,7 +14,8 @@ from crawler.config import MYSQL_ACCOUNT, MYSQL_HOST, MYSQL_PASSWORD, MYSQL_PORT
 @app.task()
 def crawler_pchome_print(brand_name, search_keyword):
     print(f"--- 工人開始執行任務: 尋找 {brand_name} ---")
-    
+    # brand_name = 'Sony'
+    # search_keyword = 'Sony WH'
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36',
         'content-type': 'application/json'
@@ -74,7 +77,7 @@ def crawler_pchome_print(brand_name, search_keyword):
                     'Price': int(price_tag),
                     'Rating': rating_tag,
                     'Source': 'PChome',
-                    'scraped_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    'scraped_at': datetime.now(timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')
                 }
                 total_result.append(row)
                 
@@ -87,7 +90,7 @@ def crawler_pchome_print(brand_name, search_keyword):
         if not df.empty:
             print(f"\n {brand_name}結束，共獲取 {len(df)} 筆資料")
 
-            upload_data_to_mysql(df, "stg_pchome_prices	")
+            upload_data_to_mysql(df, "stg_pchome_prices")
             return f"{brand_name} success and uploaded"
         else:
             print(f" {brand_name} 沒有抓到資料")
@@ -100,7 +103,9 @@ def crawler_pchome_print(brand_name, search_keyword):
 
 @app.task()
 def scrape_momo(brand_name, keywords):
-
+    #{'brand': 'Sony', 'q': 'Sony WH'},
+    # brand_name = 'Sony'
+    # keywords = 'Sony WH'
     url = 'https://apisearch.momoshop.com.tw/momoSearchCloud/moec/textSearch'
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36',
@@ -156,8 +161,8 @@ def scrape_momo(brand_name, keywords):
                     'ID': id_tag,
                     'Price': int(price_tag),
                     'Rating': rating_tag,
-                    'SalseInfo':sales_tag,
-                    'scraped_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    'SalesInfo':sales_tag,
+                    'scraped_at': datetime.now(timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')
                   }
                 task_results.append(row)
             print(f"第{page} 頁抓取完，目前累計 {len(task_results)} 筆商品")

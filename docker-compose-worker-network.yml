@@ -6,8 +6,8 @@ services:
    
     hostname: "docker-pchome"
     
-    command: uv run celery -A crawler.worker worker -Q pchome_q -c 4 --hostname=celery@%h --loglevel=info
-
+    command: uv run --env-file=.env celery -A crawler.worker worker -Q pchome_q -c 4 --hostname=celery@%h --loglevel=info
+    
     restart: always  
     environment:
       - TZ=Asia/Taipei  # 設定時區為台北（UTC+8）
@@ -17,7 +17,7 @@ services:
   crawler_momo:
     image: my-crawler:${DOCKER_IMAGE_VERSION}
     hostname: "docker-momo"
-    command: uv run celery -A crawler.worker worker -Q momo_q -c 1 --hostname=celery@%h --loglevel=info
+    command: uv run --env-file=.env celery -A crawler.worker worker -Q momo_q -c 1 --hostname=celery@%h --loglevel=info
     
     restart: always  # 若容器停止或崩潰，自動重新啟動
     environment:
