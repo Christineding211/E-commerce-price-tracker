@@ -79,7 +79,7 @@ def crawler_pchome_print(brand_name, search_keyword):
                 total_result.append(row)
                 
             print(f"{brand_name} 第 {page} 頁抓取完，累計 {len(total_result)} 筆商品")
-            time.sleep(1) # 溫柔爬蟲，保護自己也保護伺服器
+            time.sleep(1) 
 
         # 轉成 DataFrame 
         df = pd.DataFrame(total_result)

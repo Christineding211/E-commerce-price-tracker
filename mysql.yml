@@ -13,10 +13,10 @@ services:
         #   published: 3306
         #   mode: host
       environment: # 環境變數, 設置 db, user, password, root_password
-          MYSQL_DATABASE: mydb
+          MYSQL_DATABASE: headphone_db #my own db
           MYSQL_USER: user
-          MYSQL_PASSWORD: ppWgnb_mfGe2m_
-          MYSQL_ROOT_PASSWORD: ppWgnb_mfGe2m_
+          MYSQL_PASSWORD: test
+          MYSQL_ROOT_PASSWORD: test
       restart: always  # 若容器停止或崩潰，自動重新啟動
       volumes:
           - mysql:/var/lib/mysql
