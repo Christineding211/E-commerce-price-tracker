@@ -3,6 +3,7 @@ services:
 
   mysql:
       image: mysql:8.0
+      container_name: my_headphone_mysql  # 強制命名，避免被蓋掉
       # 設定 mysql 使用原生認證的密碼 hash
       command: mysqld --default-authentication-plugin=mysql_native_password
       ports: 
@@ -19,7 +20,7 @@ services:
           MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       restart: always  # 若容器停止或崩潰，自動重新啟動
       volumes:
-          - mysql:/var/lib/mysql
+          - my_own_mysql_data:/var/lib/mysql
           # share volumes of docker container to outside volume, 
           # let data persist
           # 將 docker container 的 volumes 跟外部 volumes 做連結, 
@@ -37,6 +38,7 @@ services:
           # 使用 network 服務名稱連線到 mysql (取代過時的 links 寫法)
           PMA_HOST: mysql
           PMA_PORT: 3306
+          
       depends_on:
         - mysql
       networks:
@@ -48,4 +50,4 @@ networks:
     external: true
 
 volumes:
-  mysql:
+  my_own_mysql_data: # 這裡也要同步改名
