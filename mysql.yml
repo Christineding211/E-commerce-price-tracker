@@ -15,8 +15,8 @@ services:
       environment: # 環境變數, 設置 db, user, password, root_password
           MYSQL_DATABASE: headphone_db #my own db
           MYSQL_USER: user
-          MYSQL_PASSWORD: test
-          MYSQL_ROOT_PASSWORD: test
+          MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+          MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       restart: always  # 若容器停止或崩潰，自動重新啟動
       volumes:
           - mysql:/var/lib/mysql
