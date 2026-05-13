@@ -162,6 +162,7 @@ def scrape_momo(brand_name, keywords):
                     'Price': int(price_tag),
                     'Rating': rating_tag,
                     'SalesInfo':sales_tag,
+                    'Source': 'momo',
                     'scraped_at': datetime.now(timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')
                   }
                 task_results.append(row)
