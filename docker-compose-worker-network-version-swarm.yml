@@ -14,7 +14,7 @@ services:
       placement:
         # 設定在
         # 只允許在擁有 "crawler_pchome=true" 識別證的機器上執行
-        constraints: [node.labels.crawler_pchome=true]
+        constraints: [node.labels.crawler_pchome==true]
     restart: always  # 若容器停止或崩潰，自動重新啟動
     environment:
       - TZ=Asia/Taipei  # 設定時區為台北（UTC+8）
