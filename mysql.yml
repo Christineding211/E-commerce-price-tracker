@@ -8,12 +8,12 @@ services:
     ports:
       - 3306:3306  # 對外開放資料庫埠（3306）
     environment:
-      MYSQL_DATABASE: mydb           # 啟動時自動建立的資料庫
+      MYSQL_DATABASE: headphone_db      # 啟動時自動建立的資料庫
       MYSQL_USER: user              # 建立一個普通用戶
       MYSQL_PASSWORD: ppWgnb_mfGe2m_          # 該用戶的密碼
       MYSQL_ROOT_PASSWORD: ppWgnb_mfGe2m_     # root 用戶密碼
     volumes:
-      - e-commerce-price-tracker_mysql:/var/lib/mysql        # 將資料庫資料持久化到 volume
+      - e-commerce-price-tracker_my_own_mysql_data:/var/lib/mysql        # 將資料庫資料持久化到 volume
     # 以下是 Docker Swarm 模式的設定
     deploy:
       mode: replicated              # 使用 replicated 模式，非 global
@@ -53,5 +53,5 @@ networks:
     external: true                 # 使用外部建立的 overlay 網路（需先執行 create）
 
 volumes:
-  e-commerce-price-tracker_mysql:
+  e-commerce-price-tracker_my_own_mysql_data:
     external: true                 # 使用事先建立好的 volume（避免 Docker stack 自動建立）
