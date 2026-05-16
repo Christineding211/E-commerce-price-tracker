@@ -1,7 +1,7 @@
 version: '3.0'  # 使用 Docker Compose 的版本 3.0，適合大部分部署場景
 
 services:
-  crawler_pchome:  # 定義一個服務，名稱為 crawler_twse
+  crawler_pchome:  # 定義一個服務，名稱為 crawler_pchome
     image: my-crawler:${DOCKER_IMAGE_VERSION}  # 使用的映像檔名稱與標籤（版本）
     hostname: "docker-pchome" 
     command: uv run --env-file=.env celery -A crawler.worker worker -Q pchome_q -c 4 --hostname=celery@%h --loglevel=info 
@@ -21,10 +21,10 @@ services:
     networks:
       - my_swarm_network  # 將此服務連接到 my_swarm_network 網路
 
-  crawler_tpex:  # 定義一個服務，名稱為 crawler_twse
-    image: linsamtw/tibame_crawler:${DOCKER_IMAGE_VERSION}  # 使用的映像檔名稱與標籤（版本）
-    hostname: "tpex.{{.Task.Slot}}"  # 設定 hostname = tpex
-    command: uv run --env-file=.env celery -A crawler.worker worker --loglevel=info --hostname=%h -Q tpex  
+  crawler_momo:  # 定義一個服務，名稱為 crawler_momo
+    image: my-crawler:${DOCKER_IMAGE_VERSION} # 使用的映像檔名稱與標籤（版本）
+    hostname: "docker-momo"  
+    command: uv run --env-file=.env celery -A crawler.worker worker -Q momo_q -c 1 --hostname=celery@%h --loglevel=info
     # 啟動容器後執行的命令，這裡是啟動 Celery worker，指定 app 為 crawler.worker，設定日誌等級為 info，
     # 使用主機名稱當作 worker 名稱（%h），並將此 worker 加入名為 "tpex" 的任務佇列 (queue)
     # swarm 設定
@@ -33,8 +33,8 @@ services:
       replicas: 1
       placement:
         # 設定在
-        # node label crawler_tpex = true 的機器上執行
-        constraints: [node.labels.crawler_tpex==true]
+        # node label crawler_momo==true 的機器上執行
+        constraints: [node.labels.crawler_momo==true]
     restart: always  # 若容器停止或崩潰，自動重新啟動
     environment:
       - TZ=Asia/Taipei  # 設定時區為台北（UTC+8）
