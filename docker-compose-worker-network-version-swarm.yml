@@ -3,14 +3,14 @@ version: '3.0'  # 使用 Docker Compose 的版本 3.0，適合大部分部署場
 services:
   crawler_pchome:  # 定義一個服務，名稱為 crawler_pchome
     image: my-crawler:${DOCKER_IMAGE_VERSION}  # 使用的映像檔名稱與標籤（版本）
-    hostname: "docker-pchome" 
+    hostname: "docker-pchome-{{.Task.Slot}}"
     command: uv run --env-file=.env celery -A crawler.worker worker -Q pchome_q -c 4 --hostname=celery@%h --loglevel=info 
     # 啟動容器後執行的命令，這裡是啟動 Celery worker，指定 app 為 crawler.worker，設定日誌等級為 info，
     # 使用主機名稱當作 worker 名稱（%h），並將此 worker 加入名為 "twse" 的任務佇列 (queue)
     # swarm 設定
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 3
       placement:
         # 設定在
         # 只允許在擁有 "crawler_pchome=true" 識別證的機器上執行
@@ -23,7 +23,7 @@ services:
 
   crawler_momo:  # 定義一個服務，名稱為 crawler_momo
     image: my-crawler:${DOCKER_IMAGE_VERSION} # 使用的映像檔名稱與標籤（版本）
-    hostname: "docker-momo"  
+    hostname: "docker-momo-{{.Task.Slot}}"
     command: uv run --env-file=.env celery -A crawler.worker worker -Q momo_q -c 1 --hostname=celery@%h --loglevel=info
     # 啟動容器後執行的命令，這裡是啟動 Celery worker，指定 app 為 crawler.worker，設定日誌等級為 info，
     # 使用主機名稱當作 worker 名稱（%h），並將此 worker 加入名為 "tpex" 的任務佇列 (queue)
