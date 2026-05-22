@@ -37,4 +37,5 @@ ENV LANG=C.UTF-8
 RUN ENV=DOCKER uv run python genenv.py
 
 # 啟動容器後，預設執行 bash（開啟終端）
+# 如果沒有會看到怎麼 container 一下就 exited
 CMD ["/bin/bash"]
