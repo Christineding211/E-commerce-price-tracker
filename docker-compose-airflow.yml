@@ -1,0 +1,181 @@
+version: '3.0'
+
+services:
+  # 初始化 Airflow 資料庫
+  initdb:
+    image: my-crawler:${DOCKER_IMAGE_VERSION} # 使用指定版本的自定義映像
+    command: uv run --env-file=.env airflow db init  # 初始化 Airflow 的 metadata DB
+    restart: on-failure  # 若失敗則自動重啟
+    deploy:
+      mode: replicated  # 使用 swarm replicated 模式
+      replicas: 1  # 執行一個副本
+      placement:
+        constraints: [node.labels.airflow==true]  # 僅部署在標記為 airflow 的節點
+    networks:
+      - my_swarm_network  # 使用外部 swarm 網路
+
+  # 建立 Airflow 使用者
+  create-user:
+    image: my-crawler:${DOCKER_IMAGE_VERSION}  # 同一映像
+    # 建立管理者帳號
+    command: >-
+      uv run --env-file=.env airflow users create
+      --username admin --firstname ding --lastname christine
+      --role Admin -p admin
+      --email christineding0211@gmail.com
+    depends_on:
+      - initdb  # 等待 initdb 完成後再執行
+    restart: on-failure  # 失敗自動重啟
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+      - my_swarm_network
+
+
+  # Redis：Celery 的 message broker 與 result backend
+  # scheduler 把 task 丟進 Redis queue
+  # worker 從 queue 取出 task 執行，結果再寫回 Redis
+  # 沒有 Redis，CeleryExecutor 無法分派任務
+  redis:
+    image: 'bitnami/redis:latest'
+    ports:
+        - 6379:6379  # 對外開放 6379 port（給其他容器或本機連線）
+    volumes:
+        - 'redis_data:/bitnami/redis/data'  # 持久化 Redis 資料
+    environment:
+        - ALLOW_EMPTY_PASSWORD=yes  # 允許無密碼（僅內網環境用）
+    restart: always
+    # swarm 設定
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+        - my_swarm_network
+
+  # Airflow Web UI 介面
+  webserver:
+    image: linsamtw/tibame_dataflow:${DOCKER_IMAGE_VERSION}
+    hostname: "airflow-webserver"  # 指定主機名稱
+    command: uv run --env-file=.env airflow webserver -p 5000  # 啟動 webserver，使用 5000 port
+    depends_on:
+      - initdb  # 等待資料庫初始化
+    restart: always  # 永遠重新啟動（即使正常退出也重啟）
+    ports:
+      - 5000:5000  # 對外開放 5000 port
+    environment:
+      - TZ=Asia/Taipei  # 設定時區
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+      - my_swarm_network
+
+  flower:
+    image: mher/flower:0.9.5
+    restart: always
+    depends_on:
+      - redis
+    command: ["flower", "--broker=redis://redis:6379/0", "--port=5555"]
+    ports:
+        - "5556:5555"
+    # swarm 設定
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+        - my_swarm_network
+  
+  # Airflow 排程器，負責執行 DAG 任務
+  scheduler:
+    image: linsamtw/tibame_dataflow:${DOCKER_IMAGE_VERSION}
+    hostname: "airflow-scheduler"
+    command: uv run --env-file=.env airflow scheduler  # 啟動 scheduler
+    depends_on:
+      - initdb
+    restart: always
+    environment:
+      - TZ=Asia/Taipei
+    # 將容器內的 docker 與容器外的 docker 做連結
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+      - my_swarm_network
+
+  worker:
+    image: linsamtw/tibame_dataflow:${DOCKER_IMAGE_VERSION}
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+    restart: always
+    # 將容器內的 docker 與容器外的 docker 做連結
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - scheduler
+    command: uv run --env-file=.env airflow celery worker -H "celery@%h"
+    # swarm 設定
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.worker==true]
+    networks:
+        - my_swarm_network
+
+  crawler_twse:
+    image: linsamtw/tibame_dataflow:${DOCKER_IMAGE_VERSION}
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+    restart: always
+    # 將容器內的 docker 與容器外的 docker 做連結
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - scheduler
+    command: uv run --env-file=.env airflow celery worker -q twse -H "celery@%h"
+    # swarm 設定
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+        - my_swarm_network
+
+  crawler_tpex:
+    image: linsamtw/tibame_dataflow:${DOCKER_IMAGE_VERSION}
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+    restart: always
+    # 將容器內的 docker 與容器外的 docker 做連結
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - scheduler
+    command: uv run --env-file=.env airflow celery worker -q tpex -H "celery@%h"
+    # swarm 設定
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+        - my_swarm_network
+
+# 使用外部已建立好的 Docker Swarm 網路
+networks:
+  my_swarm_network:
+    external: true
+
+volumes:
+  redis_data:
