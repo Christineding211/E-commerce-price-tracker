@@ -90,7 +90,7 @@ def crawler_pchome_print(brand_name, search_keyword):
         if not df.empty:
             print(f"\n {brand_name}結束，共獲取 {len(df)} 筆資料")
 
-            upload_data_to_mysql(df, "stg_pchome_prices")
+            upload_data_to_mysql(df, "raw_pchome_prices")
             return f"{brand_name} success and uploaded"
         else:
             print(f" {brand_name} 沒有抓到資料")
@@ -175,7 +175,7 @@ def scrape_momo(brand_name, keywords):
         if not df.empty:
             print(f"\n {brand_name}結束，共獲取 {len(df)} 筆資料")
 
-            upload_data_to_mysql(df, "stg_momo_prices")
+            upload_data_to_mysql(df, "raw_momo_prices")
             return f"{brand_name} success and uploaded"
         else:
             print(f" {brand_name} 沒有抓到資料")
