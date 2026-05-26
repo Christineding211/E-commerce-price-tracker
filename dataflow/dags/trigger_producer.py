@@ -1,0 +1,46 @@
+import airflow
+
+
+
+from dataflow.constant import (
+    DEFAULT_ARGS,
+    MAX_ACTIVE_RUNS
+)
+# 匯入 trigger_producer 任務的建立函式
+from dataflow.etl.trigger_producer import (
+    create_trigger_producer_task
+)
+# 假設以下任務的建立函式定義在 dataflow.etl 目錄下的不同模組中
+# 例如：dataflow/etl/refresh_stg_momo.py 裡面有 create_refresh_stg_momo_task 函式
+from dataflow.etl.refresh_stg_momo import create_refresh_stg_momo_task
+from dataflow.etl.refresh_stg_pchome import create_refresh_stg_pchome_task
+from dataflow.etl.refresh_fct_daily import create_refresh_fct_daily_task
+
+
+
+with airflow.DAG(
+    
+    dag_id="E-commerce_prices_pipeline",
+
+    default_args=DEFAULT_ARGS,
+    
+    schedule_interval=None,
+    
+    max_active_runs=MAX_ACTIVE_RUNS,
+    
+    catchup=False,
+
+    # 告訴 Airflow 去容器內的這裡找 SQL(docker container)
+    template_searchpath=["/dataflow/dataflow"]
+) as dag:
+    
+    # 建立各個任務
+    trigger_producer_task = create_trigger_producer_task()
+    stg_momo_task = create_refresh_stg_momo_task()
+    stg_pchome_task = create_refresh_stg_pchome_task()
+    fct_daily_task = create_refresh_fct_daily_task()
+
+
+    trigger_producer_task >>[stg_momo_task, stg_pchome_task] >> fct_daily_task
+    
+
