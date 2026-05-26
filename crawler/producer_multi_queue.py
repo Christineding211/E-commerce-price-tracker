@@ -12,7 +12,7 @@ def dispatch_tasks():
         {'brand': 'Soundcore', 'q': 'Soundcore 降噪耳機'}
     ]
 
-    print("開始派發任務到內網倉庫...")
+    print("Starting to dispatch tasks to queue")
     
     for config in target_configs:
         # 派發到 PChome 隊列
@@ -27,7 +27,7 @@ def dispatch_tasks():
             keywords=config['q']
         ).apply_async(queue='momo_q')
     
-    print("任務已全數成功進入 RabbitMQ 倉庫！")
+    print("All tasks have been successfully dispatched to the RabbitMQ queue!")
     
 
 if __name__ == "__main__":
