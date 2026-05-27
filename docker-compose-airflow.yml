@@ -69,6 +69,7 @@ services:
       - 5000:5000  # 對外開放 5000 port
     environment:
       - TZ=Asia/Taipei  # 設定時區
+      - PYTHONPATH=/dataflow
     deploy:
       mode: replicated
       replicas: 1
@@ -104,6 +105,7 @@ services:
     restart: always
     environment:
       - TZ=Asia/Taipei
+      - PYTHONPATH=/dataflow
     # 將容器內的 docker 與容器外的 docker 做連結
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -124,6 +126,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - scheduler
+    environment:
+      - PYTHONPATH=/dataflow
     command: uv run --env-file=.env airflow celery worker -H "celery@%h"
 
     # swarm 設定
@@ -144,6 +148,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - scheduler
+    environment:
+      - PYTHONPATH=/dataflow
       #換成 Airflow 專用指令：-q 指定頻道，-c 4 開四隻手
     command: uv run --env-file=.env airflow celery worker -q pchome_queue -c 4 -H "celery@%h"
     
@@ -165,6 +171,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - scheduler
+    environment:
+      - PYTHONPATH=/dataflow
     command: uv run --env-file=.env airflow celery worker -q momo_queue -c 1 -H "celery@%h"
     # swarm 設定
     deploy:
