@@ -1,4 +1,3 @@
-from airflow.providers.mysql.operators.mysql import MySqlOperator
 
 sql_script = """
 -- if scraped failed, delete that day data to ensure no duplicated 
@@ -46,11 +45,3 @@ FROM deduplicated
 WHERE row_num = 1;
 """
 
-def create_refresh_stg_momo_task():
-
-    return MySqlOperator(
-        task_id="refresh_stg_momo",
-        mysql_conn_id="mysql_default",
-        sql=sql_script
-    )
-    

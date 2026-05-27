@@ -18,5 +18,6 @@ dependencies = [
     "apache-airflow-providers-cncf-kubernetes==7.13.0",
     "google-cloud-storage==2.16.0",
     "flask-session==0.5.0",
+    "apache-airflow-providers-mysql>=5.6.3",
 ]
 
