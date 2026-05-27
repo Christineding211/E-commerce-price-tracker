@@ -34,13 +34,27 @@ with airflow.DAG(
     template_searchpath=["/dataflow/dataflow"]
 ) as dag:
     
-    # 建立各個任務
+    # 1. 起始 Empty Operator，表示整個 ETL 流程的開始
+    start_pipeline_marker = EmptyOperator(
+        task_id="start_pipeline"
+    )
+
+    # 2. 觸發爬蟲任務 (此任務會派發 Celery 任務並等待其完成)
     trigger_producer_task = create_trigger_producer_task()
+
+    # 3. 爬蟲完成後的 Empty Operator (用於標記爬蟲資料已準備好)
+    crawlers_done_and_cleanup_marker = EmptyOperator(
+        task_id="crawlers_done_and_cleanup"
+    )
+
+    # 4. Staging 任務 (PChome 和 Momo 的 Staging 可以並行執行)
     stg_momo_task = create_refresh_stg_momo_task()
     stg_pchome_task = create_refresh_stg_pchome_task()
+
+    # 5. Fact Daily 任務
     fct_daily_task = create_refresh_fct_daily_task()
 
-
-    trigger_producer_task >>[stg_momo_task, stg_pchome_task] >> fct_daily_task
-    
-
+    # 定義任務依賴關係
+    start_pipeline_marker >> trigger_producer_task >> crawlers_done_and_cleanup_marker
+    crawlers_done_and_cleanup_marker >> [stg_momo_task, stg_pchome_task]
+    [stg_momo_task, stg_pchome_task] >> fct_daily_task
