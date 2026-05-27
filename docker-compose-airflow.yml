@@ -5,6 +5,8 @@ services:
   initdb:
     image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION} # 新 Build 出來、帶有 Airflow 環境的映像檔名稱+雲端名
     command: uv run --env-file=.env airflow db init  # 初始化 Airflow 的 metadata DB
+    environment:
+      - PYTHONPATH=/dataflow
     restart: on-failure  # 若失敗則自動重啟
     deploy:
       mode: replicated  # 使用 swarm replicated 模式
