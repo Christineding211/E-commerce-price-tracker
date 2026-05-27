@@ -1,15 +1,16 @@
 import airflow
-
-
+from airflow.operators.empty import EmptyOperator
+from airflow.operators.python import PythonOperator
 
 from dataflow.constant import (
     DEFAULT_ARGS,
     MAX_ACTIVE_RUNS
 )
-# 匯入 trigger_producer 任務的建立函式
+# 匯入新的單一平台派發函式
 from dataflow.etl.trigger_producer import (
-    create_trigger_producer_task
+    run_single_producer_dispatch
 )
+
 # 假設以下任務的建立函式定義在 dataflow.etl 目錄下的不同模組中
 # 例如：dataflow/etl/refresh_stg_momo.py 裡面有 create_refresh_stg_momo_task 函式
 from dataflow.etl.refresh_stg_momo import create_refresh_stg_momo_task
@@ -39,8 +40,18 @@ with airflow.DAG(
         task_id="start_pipeline"
     )
 
-    # 2. 觸發爬蟲任務 (此任務會派發 Celery 任務並等待其完成)
-    trigger_producer_task = create_trigger_producer_task()
+    # 2. 拆開成兩個獨立的 Airflow 任務（看得清清楚楚！）
+    trigger_momo_crawler = PythonOperator(
+        task_id="trigger_momo_crawler",
+        python_callable=run_single_producer_dispatch,
+        op_kwargs={"platform": "momo", "queue_name": "momo_queue"}
+    )
+
+    trigger_pchome_crawler = PythonOperator(
+        task_id="trigger_pchome_crawler",
+        python_callable=run_single_producer_dispatch,
+        op_kwargs={"platform": "pchome", "queue_name": "pchome_queue"}
+    )
 
     # 3. 爬蟲完成後的 Empty Operator (用於標記爬蟲資料已準備好)
     crawlers_done_and_cleanup_marker = EmptyOperator(
@@ -55,6 +66,6 @@ with airflow.DAG(
     fct_daily_task = create_refresh_fct_daily_task()
 
     # 定義任務依賴關係
-    start_pipeline_marker >> trigger_producer_task >> crawlers_done_and_cleanup_marker
+    start_pipeline_marker >> [trigger_momo_crawler, trigger_pchome_crawler] >> crawlers_done_and_cleanup_marker
     crawlers_done_and_cleanup_marker >> [stg_momo_task, stg_pchome_task]
     [stg_momo_task, stg_pchome_task] >> fct_daily_task
