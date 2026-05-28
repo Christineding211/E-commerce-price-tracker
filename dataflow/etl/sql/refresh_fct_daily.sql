@@ -1,4 +1,4 @@
-sql_script = """
+
 
 DELETE FROM fct_daily_prices 
 WHERE scraped_date = '{{ ds }}';
@@ -26,4 +26,3 @@ FROM (
     WHERE pch.scraped_date = '{{ ds }}'
 ) combined_platforms
 WHERE rank_id = 1;
-"""
