@@ -1,4 +1,3 @@
-import os
 from celery import Celery
 
 # loguru 是比標準 logging 更好用的日誌套件, 不用繁瑣設定就能直接用
@@ -13,19 +12,12 @@ from crawler.config import (
     WORKER_PASSWORD,  # 連線到 RabbitMQ 的密碼
 )
 
-# 優先讀取環境變數中的 Broker URL (例如 Docker 中的 Redis)
-# 如果沒有環境變數，才回退到 config 裡的 RabbitMQ 設定
-
-CELERY_BROKER = os.getenv("CELERY_BROKER_URL", f"pyamqp://{WORKER_ACCOUNT}:{WORKER_PASSWORD}@rabbitmq:{RABBITMQ_PORT}/")
-CELERY_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://redis:6379/0")
-
 # 印出目前讀到的環境變數, 方便除錯確認設定是否正確載入
 logger.info(f"""
-    ========================================
-    [Celery Environment Config Sync]
-    - CELERY_BROKER_URL: {CELERY_BROKER}
-    - CELERY_RESULT_BACKEND: {CELERY_BACKEND}
-    ========================================
+    RABBITMQ_HOST: {RABBITMQ_HOST}
+    RABBITMQ_PORT: {RABBITMQ_PORT}
+    WORKER_ACCOUNT: {WORKER_ACCOUNT}
+    WORKER_PASSWORD: {WORKER_PASSWORD}
 """)
 
 # 建立 Celery app 實例, "task" 是這個應用程式的名稱
@@ -40,6 +32,5 @@ app = Celery(
     # broker: 指定訊息中介的連線網址, Celery 會把任務送到這裡排隊
     # 格式: pyamqp://帳號:密碼@主機:埠號/
     # 例如: pyamqp://worker:worker@rabbitmq:5672/
-    broker=CELERY_BROKER,       
-    backend=CELERY_BACKEND
+    broker=f"pyamqp://{WORKER_ACCOUNT}:{WORKER_PASSWORD}@rabbitmq:{RABBITMQ_PORT}/",
 )
