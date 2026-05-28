@@ -44,13 +44,13 @@ with airflow.DAG(
     trigger_momo_crawler = PythonOperator(
         task_id="trigger_momo_crawler",
         python_callable=run_single_producer_dispatch,
-        op_kwargs={"platform": "momo", "queue_name": "momo_queue"}
+        op_kwargs={"platform": "momo", "queue_name": "momo_q"}
     )
 
     trigger_pchome_crawler = PythonOperator(
         task_id="trigger_pchome_crawler",
         python_callable=run_single_producer_dispatch,
-        op_kwargs={"platform": "pchome", "queue_name": "pchome_queue"}
+        op_kwargs={"platform": "pchome", "queue_name": "pchome_q"}
     )
 
     # 3. 爬蟲完成後的 Empty Operator (用於標記爬蟲資料已準備好)
