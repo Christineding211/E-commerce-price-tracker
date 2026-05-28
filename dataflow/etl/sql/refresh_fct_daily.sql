@@ -12,7 +12,7 @@ FROM (
         ROW_NUMBER() OVER(PARTITION BY momo.ID, momo.scraped_date ORDER BY LENGTH(dim.keyword) DESC) AS rank_id
     FROM stg_momo_prices momo
     JOIN dim_products dim ON LOWER(momo.Name) LIKE CONCAT('%', dim.keyword, '%')
-    --只抓今天 Staging 表更新出來的資料
+    
     WHERE momo.scraped_date = '{{ ds }}'
 
     UNION ALL
@@ -22,7 +22,7 @@ FROM (
         ROW_NUMBER() OVER(PARTITION BY pch.ID, pch.scraped_date ORDER BY LENGTH(dim.keyword) DESC) AS rank_id
     FROM stg_pchome_prices pch
     JOIN dim_products dim ON LOWER(pch.Name) LIKE CONCAT('%', dim.keyword, '%')
-    --只抓今天 Staging 表更新出來的資料
+    
     WHERE pch.scraped_date = '{{ ds }}'
 ) combined_platforms
 WHERE rank_id = 1;
