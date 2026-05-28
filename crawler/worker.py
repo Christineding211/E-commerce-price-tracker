@@ -11,13 +11,18 @@ from crawler.config import (
     WORKER_ACCOUNT,  # 連線到 RabbitMQ 的帳號
     WORKER_PASSWORD,  # 連線到 RabbitMQ 的密碼
 )
+# 優先讀取環境變數中的 Broker URL (例如 Docker 中的 Redis)
+# 如果沒有環境變數，才回退到 config 裡的 RabbitMQ 設定
+CELERY_BROKER = os.getenv("CELERY_BROKER_URL", f"pyamqp://{WORKER_ACCOUNT}:{WORKER_PASSWORD}@rabbitmq:{RABBITMQ_PORT}/")
+CELERY_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://redis:6379/0")
 
 # 印出目前讀到的環境變數, 方便除錯確認設定是否正確載入
 logger.info(f"""
-    RABBITMQ_HOST: {RABBITMQ_HOST}
-    RABBITMQ_PORT: {RABBITMQ_PORT}
-    WORKER_ACCOUNT: {WORKER_ACCOUNT}
-    WORKER_PASSWORD: {WORKER_PASSWORD}
+    ========================================
+    [Celery Environment Config Sync]
+    - CELERY_BROKER_URL: {CELERY_BROKER}
+    - CELERY_RESULT_BACKEND: {CELERY_BACKEND}
+    ========================================
 """)
 
 # 建立 Celery app 實例, "task" 是這個應用程式的名稱
@@ -26,11 +31,9 @@ app = Celery(
     # include: 告訴 Celery 要載入哪些 Python 模組裡的 task
     # 只有列在這裡的模組, 裡面用 @app.task 裝飾的函式才會被註冊為可執行任務
     include=[
-        "crawler.task",  # 一般任務
-        "crawler.tasks_crawler" #爬蟲任務
+        "crawler.task",          # 一般任務
+        "crawler.tasks_crawler"  # 爬蟲任務
     ],
-    # broker: 指定訊息中介的連線網址, Celery 會把任務送到這裡排隊
-    # 格式: pyamqp://帳號:密碼@主機:埠號/
-    # 例如: pyamqp://worker:worker@rabbitmq:5672/
-    broker=f"pyamqp://{WORKER_ACCOUNT}:{WORKER_PASSWORD}@rabbitmq:{RABBITMQ_PORT}/",
+    broker=CELERY_BROKER,       
+    backend=CELERY_BACKEND      
 )
