@@ -163,7 +163,7 @@ services:
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    command: uv run --env-file=.env airflow celery worker -q pchome_queue -c 4 -H "celery@%h"
+    command: uv run --env-file=.env celery -A crawler.worker worker -q pchome_queue -c 4 -n pchome@%h
     deploy:
       mode: replicated
       replicas: 3
@@ -188,7 +188,7 @@ services:
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    command: uv run --env-file=.env airflow celery worker -q momo_queue -c 1 -H "celery@%h"
+    command: uv run --env-file=.env celery -A crawler.worker worker -q momo_queue -c 1 -n momo@%h
     deploy:
       mode: replicated
       replicas: 1
