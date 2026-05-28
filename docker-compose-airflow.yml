@@ -3,31 +3,30 @@ version: '3.0'
 services:
   # 初始化 Airflow 資料庫
   initdb:
-    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION} # 新 Build 出來、帶有 Airflow 環境的映像檔名稱+雲端名
-    command: uv run --env-file=.env airflow db init  # 初始化 Airflow 的 metadata DB
+    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
+    command: uv run --env-file=.env airflow db init
     environment:
       - PYTHONPATH=/dataflow
-    restart: on-failure  # 若失敗則自動重啟
+    restart: on-failure
     deploy:
-      mode: replicated  # 使用 swarm replicated 模式
-      replicas: 1  # 執行一個副本
+      mode: replicated
+      replicas: 1
       placement:
-        constraints: [node.labels.airflow==true]  # 僅部署在標記為 airflow 的節點
+        constraints: [node.labels.airflow==true]
     networks:
-      - my_swarm_network  # 使用外部 swarm 網路
+      - my_swarm_network
 
   # 建立 Airflow 使用者
   create-user:
-    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}   # 同一映像
-    # 建立管理者帳號
+    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
     command: >-
       uv run --env-file=.env airflow users create
       --username admin --firstname ding --lastname christine
       --role Admin -p admin
       --email christineding0211@gmail.com
     depends_on:
-      - initdb  # 等待 initdb 完成後再執行
-    restart: on-failure  # 失敗自動重啟
+      - initdb
+    restart: on-failure
     deploy:
       mode: replicated
       replicas: 1
@@ -36,42 +35,42 @@ services:
     networks:
       - my_swarm_network
 
-
-  # Redis：Celery 的 message broker 與 result backend
-  # scheduler 把 task 丟進 Redis queue
-  # worker 從 queue 取出 task 執行，結果再寫回 Redis
-  # 沒有 Redis，CeleryExecutor 無法分派任務
+  # Redis：Celery 的訊息中介所
   redis:
     image: 'bitnami/redis:latest'
     ports:
-        - 6379:6379  # 對外開放 6379 port（給其他容器或本機連線）
+      - 6379:6379
     volumes:
-        - 'redis_data:/bitnami/redis/data'  # 持久化 Redis 資料
+      - 'redis_data:/bitnami/redis/data'
     environment:
-        - ALLOW_EMPTY_PASSWORD=yes  # 允許無密碼（僅內網環境用）
+      - ALLOW_EMPTY_PASSWORD=yes
     restart: always
-    # swarm 設定
     deploy:
       mode: replicated
       replicas: 1
       placement:
         constraints: [node.labels.airflow==true]
     networks:
-        - my_swarm_network
+      - my_swarm_network
 
   # Airflow Web UI 介面
   webserver:
     image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
-    hostname: "airflow-webserver"  # 指定主機名稱
-    command: uv run --env-file=.env airflow webserver -p 5000  # 啟動 webserver，使用 5000 port
+    hostname: "airflow-webserver"
+    command: uv run --env-file=.env airflow webserver -p 5000
     depends_on:
-      - initdb  # 等待資料庫初始化
-    restart: always  # 永遠重新啟動（即使正常退出也重啟）
+      - initdb
+    restart: always
     ports:
-      - 5000:5000  # 對外開放 5000 port
+      - 5000:5000
     environment:
-      - TZ=Asia/Taipei  # 設定時區
+      - TZ=Asia/Taipei
       - PYTHONPATH=/dataflow
+      # 同時滿足 Airflow 官方與純 Celery 專案
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     deploy:
       mode: replicated
       replicas: 1
@@ -80,6 +79,7 @@ services:
     networks:
       - my_swarm_network
 
+  # Flower：Celery 戰情監控面板
   flower:
     image: mher/flower:0.9.5
     restart: always
@@ -87,28 +87,31 @@ services:
       - redis
     command: ["flower", "--broker=redis://redis:6379/0", "--port=5555"]
     ports:
-        - "5556:5555"
-    # swarm 設定
+      - "5556:5555"
     deploy:
       mode: replicated
       replicas: 1
       placement:
         constraints: [node.labels.airflow==true]
     networks:
-        - my_swarm_network
+      - my_swarm_network
   
-  # Airflow 排程器，負責執行 DAG 任務
+  # Airflow 排程器
   scheduler:
     image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
     hostname: "airflow-scheduler"
-    command: uv run --env-file=.env airflow scheduler  # 啟動 scheduler
+    command: uv run --env-file=.env airflow scheduler
     depends_on:
       - initdb
     restart: always
     environment:
       - TZ=Asia/Taipei
       - PYTHONPATH=/dataflow
-    # 將容器內的 docker 與容器外的 docker 做連結
+      # 
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
@@ -119,73 +122,81 @@ services:
     networks:
       - my_swarm_network
 
+  # 通用 Airflow Worker
   worker:
     image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
     restart: always
-    # 將容器內的 docker 與容器外的 docker 做連結
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - scheduler
     environment:
       - PYTHONPATH=/dataflow
+      # 
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     command: uv run --env-file=.env airflow celery worker -H "celery@%h"
-
-    # swarm 設定
     deploy:
       mode: replicated
       replicas: 1
       placement:
         constraints: [node.labels.worker==true]
     networks:
-        - my_swarm_network
+      - my_swarm_network
 
+  # PChome 專用爬蟲兵
   crawler_pchome:
-    image:  christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
+    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
     hostname: "docker-pchome-{{.Task.Slot}}"
     restart: always
-    # 將容器內的 docker 與容器外的 docker 做連結
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - scheduler
     environment:
       - PYTHONPATH=/dataflow
-      #換成 Airflow 專用指令：-q 指定頻道，-c 4 開四隻手
+      # 
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     command: uv run --env-file=.env airflow celery worker -q pchome_queue -c 4 -H "celery@%h"
-    
-    # swarm 設定
     deploy:
       mode: replicated
-      replicas: 3 #複製 3 個分身
+      replicas: 3
       placement:
         constraints: [node.labels.airflow==true]
     networks:
-        - my_swarm_network
+      - my_swarm_network
 
+  # Momo 專用爬蟲兵
   crawler_momo:
-    image:  christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
+    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
     hostname: "docker-momo-{{.Task.Slot}}"
     restart: always
-    # 將容器內的 docker 與容器外的 docker 做連結
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - scheduler
     environment:
       - PYTHONPATH=/dataflow
+      # 
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     command: uv run --env-file=.env airflow celery worker -q momo_queue -c 1 -H "celery@%h"
-    # swarm 設定
     deploy:
       mode: replicated
-      replicas: 1 ## 保持 1 個分身
+      replicas: 1
       placement:
         constraints: [node.labels.airflow==true]
     networks:
-        - my_swarm_network
+      - my_swarm_network
 
-# 使用外部已建立好的 Docker Swarm 網路
 networks:
   my_swarm_network:
     external: true
