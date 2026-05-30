@@ -6,16 +6,15 @@ from dataflow.constant import (
     DEFAULT_ARGS,
     MAX_ACTIVE_RUNS
 )
-# 匯入新的單一平台派發函式
-from dataflow.etl.trigger_producer import (
-    run_single_producer_dispatch
-)
+
 
 # 假設以下任務的建立函式定義在 dataflow.etl 目錄下的不同模組中
 # 例如：dataflow/etl/refresh_stg_momo.py 裡面有 create_refresh_stg_momo_task 函式
 from dataflow.etl.refresh_stg_momo import create_refresh_stg_momo_task
 from dataflow.etl.refresh_stg_pchome import create_refresh_stg_pchome_task
 from dataflow.etl.refresh_fct_daily import create_refresh_fct_daily_task
+from dataflow.etl.trigger_producer import create_scraper_tasks
+
 
 
 
@@ -40,22 +39,13 @@ with airflow.DAG(
         task_id="start_pipeline"
     )
 
-    # 2. 拆開成兩個獨立的 Airflow 任務
-    trigger_momo_crawler = PythonOperator(
-        task_id="trigger_momo_crawler",
-        python_callable=run_single_producer_dispatch,
-        op_kwargs={"platform": "momo", "queue_name": "momo_q"}
-    )
+    pchome_tasks, momo_tasks = create_scraper_tasks()
+    all_crawler_tasks = pchome_tasks + momo_tasks
 
-    trigger_pchome_crawler = PythonOperator(
-        task_id="trigger_pchome_crawler",
-        python_callable=run_single_producer_dispatch,
-        op_kwargs={"platform": "pchome", "queue_name": "pchome_q"}
-    )
 
     # 3. 爬蟲完成後的 Empty Operator (用於標記爬蟲資料已準備好)
-    crawlers_done_and_cleanup_marker = EmptyOperator(
-        task_id="crawlers_done_and_cleanup"
+    crawlers_done_marker = EmptyOperator(
+        task_id="crawlers_done"
     )
 
     # 4. Staging 任務 (PChome 和 Momo 的 Staging 可以並行執行)
@@ -66,6 +56,8 @@ with airflow.DAG(
     fct_daily_task = create_refresh_fct_daily_task()
 
     # 定義任務依賴關係
-    start_pipeline_marker >> [trigger_momo_crawler, trigger_pchome_crawler] >> crawlers_done_and_cleanup_marker
-    crawlers_done_and_cleanup_marker >> [stg_momo_task, stg_pchome_task]
+    start_pipeline_marker >> all_crawler_tasks
+    all_crawler_tasks >> crawlers_done_marker
+
+    crawlers_done_marker >> [stg_momo_task, stg_pchome_task]
     [stg_momo_task, stg_pchome_task] >> fct_daily_task

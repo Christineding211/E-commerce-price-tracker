@@ -14,7 +14,7 @@ TARGET_CONFIGS = [
 ]
 
 
-def create_scraper_tasks(dag):
+def create_scraper_tasks():
     """
     Create Airflow PythonOperator tasks for PChome and momo scraping.
 
@@ -37,8 +37,8 @@ def create_scraper_tasks(dag):
             op_kwargs={
                 "brand_name": brand,
                 "search_keyword": keyword,
-            },
-            dag=dag,
+            }
+            
         )
 
         momo_task = PythonOperator(
@@ -47,8 +47,8 @@ def create_scraper_tasks(dag):
             op_kwargs={
                 "brand_name": brand,
                 "keywords": keyword,
-            },
-            dag=dag,
+            }
+            
         )
 
         pchome_tasks.append(pchome_task)
