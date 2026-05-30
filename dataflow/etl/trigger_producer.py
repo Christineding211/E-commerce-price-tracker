@@ -1,69 +1,57 @@
-import time
+
+
+#from crawler.worker import app --> only use in celery 
+
 from airflow.operators.python import PythonOperator
-
-# 匯入外部的爬蟲 Task 與 Celery App
 from crawler.tasks_crawler import crawler_pchome_print, scrape_momo
-from crawler.worker import app
 
-def run_single_producer_dispatch(platform: str, queue_name: str):
+
+TARGET_CONFIGS = [
+    {"brand": "Sony", "q": "Sony WH"},
+    {"brand": "Sennheiser", "q": "Sennheiser 降噪耳機"},
+    {"brand": "JLAB", "q": "JLAB 降噪耳機"},
+    {"brand": "Soundcore", "q": "Soundcore 降噪耳機"},
+]
+
+
+def create_scraper_tasks(dag):
     """
-    根據平台派發任務，並等待該 Queue 中的所有任務執行完畢。
+    Create Airflow PythonOperator tasks for PChome and momo scraping.
+
+    In Method A, Airflow CeleryExecutor distributes these PythonOperator tasks
+    to Airflow workers. We do NOT use crawler Celery .delay() or .apply_async().
     """
-    target_configs = [
-        {'brand': 'Sony', 'q': 'Sony WH'},
-        {'brand': 'Sennheiser', 'q': 'Sennheiser 降噪耳機'},
-        {'brand': 'JLAB', 'q': 'JLAB 降噪耳機'},
-        {'brand': 'Soundcore', 'q': 'Soundcore 降噪耳機'}
-    ]
 
-    print(f"Airflow is launching the {platform} crawler dispatcher to queue: {queue_name}")
-    
-    for config in target_configs:
-        if platform == "pchome":
-            crawler_pchome_print.s(
-                brand_name=config['brand'], 
-                search_keyword=config['q']
-            ).apply_async(queue=queue_name)
-        elif platform == "momo":
-            scrape_momo.s(
-                brand_name=config['brand'], 
-                keywords=config['q']
-            ).apply_async(queue=queue_name)
-    
-    print(f"Tasks for {platform} successfully dispatched. Waiting for completion...")
-    time.sleep(3) #airflow palse for 3
+    pchome_tasks = []
+    momo_tasks = []
 
-    # 監控邏輯：只檢查屬於目前 queue_name 的任務
-    while True:
-        inspect = app.control.inspect()
-        
-        # 🎯 核心修正 2：防禦性程式碼（避免 inspect 連線不到時直接崩潰）
-        if not inspect:
-            print("⚠️ [Airflow] 無法連線到 Celery Broker / Worker，10 秒後重試...")
-            time.sleep(10)
-            continue
+    for config in TARGET_CONFIGS:
+        brand = config["brand"]
+        keyword = config["q"]
 
-        # 確保即使 Worker 沒反應，拿到的也是字典，不會變成 None
-        active = inspect.active() or {}
-        reserved = inspect.reserved() or {}
+        safe_brand = brand.lower().replace(" ", "_")
 
-        total_remaining = 0
-        
-        # 檢查所有 Worker 身上正在執行 (active) 的任務
-        for worker_tasks in active.values():
-            # 這裡多加一個 if worker_tasks，確保裡面有東西才算
-            if worker_tasks:
-                total_remaining += sum(1 for t in worker_tasks if t.get('delivery_info', {}).get('routing_key') == queue_name)
-                
-        # 檢查所有 Worker 預約 (reserved) 的任務
-        for worker_tasks in reserved.values():
-            if worker_tasks:
-                total_remaining += sum(1 for t in worker_tasks if t.get('delivery_info', {}).get('routing_key') == queue_name)
+        pchome_task = PythonOperator(
+            task_id=f"scrape_pchome_{safe_brand}",
+            python_callable=crawler_pchome_print,
+            op_kwargs={
+                "brand_name": brand,
+                "search_keyword": keyword,
+            },
+            dag=dag,
+        )
 
-        # 🎯 經過 3 秒緩衝後，如果這時候算出來真的歸零了，才是真正的「打怪結束」
-        if total_remaining == 0:
-            print(f"🎉 [Airflow] All {platform} tasks in queue {queue_name} completed.")
-            break
+        momo_task = PythonOperator(
+            task_id=f"scrape_momo_{safe_brand}",
+            python_callable=scrape_momo,
+            op_kwargs={
+                "brand_name": brand,
+                "keywords": keyword,
+            },
+            dag=dag,
+        )
 
-        print(f"⏳ [Airflow] Remaining {platform} tasks: {total_remaining}. Waiting 10s...")
-        time.sleep(10)
+        pchome_tasks.append(pchome_task)
+        momo_tasks.append(momo_task)
+
+    return pchome_tasks, momo_tasks
