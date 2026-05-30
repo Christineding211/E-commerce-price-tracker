@@ -11,7 +11,7 @@ from crawler.config import MYSQL_ACCOUNT, MYSQL_HOST, MYSQL_PASSWORD, MYSQL_PORT
 
 
 # 加上裝飾器，讓它變成可派送的任務
-@app.task()
+
 def crawler_pchome_print(brand_name, search_keyword):
     print(f"--- 工人開始執行任務: 尋找 {brand_name} ---")
     # brand_name = 'Sony'
@@ -101,7 +101,7 @@ def crawler_pchome_print(brand_name, search_keyword):
         return "Error"
 
 
-@app.task()
+
 def scrape_momo(brand_name, keywords):
     #{'brand': 'Sony', 'q': 'Sony WH'},
     # brand_name = 'Sony'
