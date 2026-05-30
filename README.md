@@ -8,12 +8,26 @@
     docker build -f with.env.Dockerfile_Airflow -t my-crawler_dataflow:0.0.1 .
     docker build -f with.env.Dockerfile_Airflow -t christine0211/e-commerce-airflow:0.0.2 .
     docker build -f with.env.Dockerfile_Airflow -t christine0211/e-commerce-airflow:0.0.3 .
+    docker build -f with.env.Dockerfile_Airflow -t christine0211/e-commerce-airflow:0.0.4 .
+    docker build -f with.env.Dockerfile_Airflow -t christine0211/e-commerce-airflow:0.0.5 .
+    docker build -f with.env.Dockerfile_Airflow -t christine0211/e-commerce-airflow:0.0.6 .
+    docker build -f with.env.Dockerfile_Airflow -t christine0211/e-commerce-airflow:0.0.7 .
+    docker build -f with.env.Dockerfile_Airflow -t christine0211/e-commerce-airflow:0.0.8 .
+    docker build -f with.env.Dockerfile_Airflow -t christine0211/e-commerce-airflow:0.0.9 .
+    docker build -f with.env.Dockerfile_Airflow -t christine0211/e-commerce-airflow:0.0.10 .
 
 #### push docker image
     -- docker tag my-crawler_dataflow:0.0.1 christine0211/e-commerce-crawler:airflow-0.0.1
     docker push christine0211/e-commerce-crawler:airflow-0.0.1
     docker push christine0211/e-commerce-airflow:0.0.2 
     docker push christine0211/e-commerce-airflow:0.0.3
+    docker push christine0211/e-commerce-airflow:0.0.4
+    docker push christine0211/e-commerce-airflow:0.0.5
+    docker push christine0211/e-commerce-airflow:0.0.6
+    docker push christine0211/e-commerce-airflow:0.0.7
+    docker push christine0211/e-commerce-airflow:0.0.8
+    docker push christine0211/e-commerce-airflow:0.0.9
+    docker push christine0211/e-commerce-airflow:0.0.10
     
 
 
@@ -28,6 +42,13 @@
     DOCKER_IMAGE_VERSION=airflow-0.0.1 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
     DOCKER_IMAGE_VERSION=0.0.2 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
     DOCKER_IMAGE_VERSION=0.0.3 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
+    DOCKER_IMAGE_VERSION=0.0.4 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
+    DOCKER_IMAGE_VERSION=0.0.5 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
+    DOCKER_IMAGE_VERSION=0.0.6 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
+    DOCKER_IMAGE_VERSION=0.0.7 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
+    DOCKER_IMAGE_VERSION=0.0.8 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
+    DOCKER_IMAGE_VERSION=0.0.9 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
+    DOCKER_IMAGE_VERSION=0.0.10 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
 
 
 

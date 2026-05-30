@@ -81,11 +81,11 @@ services:
 
   # Flower：Celery 戰情監控面板
   flower:
-    image: mher/flower:0.9.5
+    image: mher/flower:2.0.1
     restart: always
     depends_on:
       - redis
-    command: ["flower", "--broker=redis://redis:6379/0", "--port=5555"]
+    command: ["celery", "--broker=redis://redis:6379/0", "flower", "--port=5555"]
     ports:
       - "5556:5555"
     deploy:
@@ -138,7 +138,7 @@ services:
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    command: uv run --env-file=.env airflow celery worker -H "celery@%h"
+    command: uv run --env-file=.env airflow celery worker --without-mingle --without-gossip -H "celery@%h" 
     deploy:
       mode: replicated
       replicas: 1
@@ -163,7 +163,8 @@ services:
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    command: uv run --env-file=.env celery -A crawler.worker worker -Q pchome_q -c 4 -n pchome@%h
+    command: uv run --env-file=.env celery -A crawler.worker worker --without-mingle --without-gossip -Q pchome_q -c 4 --hostname=celery@%h --loglevel=info 
+   
     deploy:
       mode: replicated
       replicas: 3
@@ -188,7 +189,7 @@ services:
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    command: uv run --env-file=.env celery -A crawler.worker worker -Q momo_q -c 1 -n momo@%h
+    command: uv run --env-file=.env celery -A crawler.worker worker --without-mingle --without-gossip -Q momo_q -c 1 --hostname=celery@%h --loglevel=info
     deploy:
       mode: replicated
       replicas: 1

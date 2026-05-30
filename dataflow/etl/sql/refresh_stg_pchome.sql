@@ -1,6 +1,6 @@
 
 
-sql_script = """
+
 -- if scraped failed, delete that day data to ensure no duplicated 
 DELETE FROM stg_pchome_prices 
 WHERE scraped_date = '{{ ds }}';
@@ -41,4 +41,4 @@ SELECT
     scraped_at
 FROM deduplicated
 WHERE row_num = 1;
-"""
+

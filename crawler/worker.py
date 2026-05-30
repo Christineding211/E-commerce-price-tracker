@@ -1,4 +1,5 @@
 from celery import Celery
+import os
 
 # loguru 是比標準 logging 更好用的日誌套件, 不用繁瑣設定就能直接用
 from loguru import logger
@@ -31,7 +32,6 @@ app = Celery(
     # include: 告訴 Celery 要載入哪些 Python 模組裡的 task
     # 只有列在這裡的模組, 裡面用 @app.task 裝飾的函式才會被註冊為可執行任務
     include=[
-        "crawler.task",          # 一般任務
         "crawler.tasks_crawler"  # 爬蟲任務
     ],
     broker=CELERY_BROKER,       

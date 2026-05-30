@@ -4,7 +4,7 @@ services:
   crawler_pchome:  # 定義一個服務，名稱為 crawler_pchome
     image: my-crawler:${DOCKER_IMAGE_VERSION}  # 使用的映像檔名稱與標籤（版本）
     hostname: "docker-pchome-{{.Task.Slot}}"
-    command: uv run --env-file=.env celery -A crawler.worker worker -Q pchome_q -c 4 --hostname=celery@%h --loglevel=info 
+    command: uv run --env-file=.env airflow celery worker -q pchome_q -c 4 --hostname=celery@%h --loglevel=info 
     # 啟動容器後執行的命令，這裡是啟動 Celery worker，指定 app 為 crawler.worker，設定日誌等級為 info，
     # 使用主機名稱當作 worker 名稱（%h），並將此 worker 加入名為 "twse" 的任務佇列 (queue)
     # swarm 設定
@@ -18,13 +18,17 @@ services:
     restart: always  # 若容器停止或崩潰，自動重新啟動
     environment:
       - TZ=Asia/Taipei  # 設定時區為台北（UTC+8）
+      - PYTHONPATH=/dataflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
     networks:
       - my_swarm_network  # 將此服務連接到 my_swarm_network 網路
 
   crawler_momo:  # 定義一個服務，名稱為 crawler_momo
     image: my-crawler:${DOCKER_IMAGE_VERSION} # 使用的映像檔名稱與標籤（版本）
     hostname: "docker-momo-{{.Task.Slot}}"
-    command: uv run --env-file=.env celery -A crawler.worker worker -Q momo_q -c 1 --hostname=celery@%h --loglevel=info
+    command: uv run --env-file=.env airflow celery worker -q momo_q -c 1 --hostname=celery@%h --loglevel=info
     # 啟動容器後執行的命令，這裡是啟動 Celery worker，指定 app 為 crawler.worker，設定日誌等級為 info，
     # 使用主機名稱當作 worker 名稱（%h），並將此 worker 加入名為 "tpex" 的任務佇列 (queue)
     # swarm 設定
@@ -38,6 +42,10 @@ services:
     restart: always  # 若容器停止或崩潰，自動重新啟動
     environment:
       - TZ=Asia/Taipei  # 設定時區為台北（UTC+8）
+      - PYTHONPATH=/dataflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
     networks:
       - my_swarm_network  # 將此服務連接到 my_network 網路
 
