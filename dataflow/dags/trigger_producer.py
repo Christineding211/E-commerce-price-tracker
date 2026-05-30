@@ -40,7 +40,7 @@ with airflow.DAG(
         task_id="start_pipeline"
     )
 
-    # 2. 拆開成兩個獨立的 Airflow 任務（看得清清楚楚！）
+    # 2. 拆開成兩個獨立的 Airflow 任務
     trigger_momo_crawler = PythonOperator(
         task_id="trigger_momo_crawler",
         python_callable=run_single_producer_dispatch,
