@@ -7,6 +7,7 @@ services:
     command: uv run --env-file=.env airflow db init
     environment:
       - PYTHONPATH=/dataflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
     restart: on-failure
     deploy:
       mode: replicated
@@ -66,6 +67,7 @@ services:
     environment:
       - TZ=Asia/Taipei
       - PYTHONPATH=/dataflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       # 同時滿足 Airflow 官方與純 Celery 專案
       - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
@@ -107,6 +109,7 @@ services:
     environment:
       - TZ=Asia/Taipei
       - PYTHONPATH=/dataflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       # 
       - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
@@ -133,6 +136,7 @@ services:
       - scheduler
     environment:
       - PYTHONPATH=/dataflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       # 
       - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
@@ -158,12 +162,13 @@ services:
       - scheduler
     environment:
       - PYTHONPATH=/dataflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       # 
       - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    command: uv run --env-file=.env celery -A crawler.worker worker --without-mingle --without-gossip -Q pchome_q -c 4 --hostname=celery@%h --loglevel=info 
+    command: uv run --env-file=.env airflow celery worker -q pchome_q --without-mingle --without-gossip -c 4 --hostname=celery@%h --loglevel=info 
    
     deploy:
       mode: replicated
@@ -184,12 +189,13 @@ services:
       - scheduler
     environment:
       - PYTHONPATH=/dataflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       # 
       - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    command: uv run --env-file=.env celery -A crawler.worker worker --without-mingle --without-gossip -Q momo_q -c 1 --hostname=celery@%h --loglevel=info
+    command: uv run --env-file=.env airflow celery worker -q momo_q --without-mingle --without-gossip -c 1 --hostname=celery@%h --loglevel=info
     deploy:
       mode: replicated
       replicas: 1
