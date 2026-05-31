@@ -1,6 +1,6 @@
 import airflow
 from airflow.operators.empty import EmptyOperator
-from airflow.operators.python import PythonOperator
+
 
 from dataflow.constant import (
     DEFAULT_ARGS,
