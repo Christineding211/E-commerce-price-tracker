@@ -1,13 +1,10 @@
-# 忽略虛擬環境（這是你左邊選單看到的 .venv 資料夾）
-.venv/
-
-# 忽略 Python 執行時產生的編譯檔案與緩存
-__pycache__/
-*.pyc
-
-# 忽略 IDE 的設定檔
+*__pycache__/
 .vscode/
-
-# 忽略你專案中那個 CACHEDIR.TAG 雜物
-CACHEDIR.TAG
+*.pytest_cache/
+*.vscode
+.env
+*.pyc
+*.egg-info
+.cache
+build/
 
