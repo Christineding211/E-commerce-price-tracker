@@ -13,4 +13,5 @@ Removed files:
 - producer_crawler.py
 - producer_multi_queue_test.py
 - producer_multi_queue.py
+- docker-compose-worker-network-version-swarm_celery.yml
 
