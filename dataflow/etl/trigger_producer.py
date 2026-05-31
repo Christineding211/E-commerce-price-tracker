@@ -37,7 +37,8 @@ def create_scraper_tasks():
             op_kwargs={
                 "brand_name": brand,
                 "search_keyword": keyword,
-            }
+            },
+            queue = "pchome_q"  #align with airflow pchome worker setting
             
         )
 
@@ -47,7 +48,8 @@ def create_scraper_tasks():
             op_kwargs={
                 "brand_name": brand,
                 "keywords": keyword,
-            }
+            },
+            queue = "momo_q"  #align with airflow momo worker setting
             
         )
 
