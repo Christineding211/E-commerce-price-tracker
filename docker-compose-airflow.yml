@@ -129,7 +129,7 @@ services:
       - TZ=Asia/Taipei
       - PYTHONPATH=/dataflow
       - AIRFLOW_HOME=/dataflow
-    command: uv run --env-file=.env airflow celery worker -q default --without-mingle --without-gossip -c 2 -H airflow-default@%h -l info -E
+    command: uv run --env-file=.env airflow celery worker -q default --without-mingle --without-gossip -c 2 -H airflow-default@%h -l info 
     deploy:
       mode: replicated
       replicas: 1
@@ -151,7 +151,7 @@ services:
       - TZ=Asia/Taipei
       - PYTHONPATH=/dataflow
       - AIRFLOW_HOME=/dataflow
-    command: uv run --env-file=.env airflow celery worker -q pchome_q --without-mingle --without-gossip -c 4 -H airflow-pchome@%h -l info -E
+    command: uv run --env-file=.env airflow celery worker -q pchome_q --without-mingle --without-gossip -c 4 -H airflow-pchome@%h -l info 
    
     deploy:
       mode: replicated
@@ -174,7 +174,7 @@ services:
       - TZ=Asia/Taipei
       - PYTHONPATH=/dataflow
       - AIRFLOW_HOME=/dataflow
-    command: uv run --env-file=.env airflow celery worker -q momo_q --without-mingle --without-gossip -c 1 -H airflow-momo@%h -l info -E
+    command: uv run --env-file=.env airflow celery worker -q momo_q --without-mingle --without-gossip -c 1 -H airflow-momo@%h -l info 
     deploy:
       mode: replicated
       replicas: 1
