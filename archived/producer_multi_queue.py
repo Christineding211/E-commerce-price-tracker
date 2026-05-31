@@ -1,5 +1,6 @@
 
-from crawler.tasks_crawler import crawler_pchome_print, scrape_momo
+# 目前方法 A 不使用，保留作為舊版 Celery crawler 架構參考。
+
 # 確保這裡的 app 連線地址已經改為 'rabbitmq'
 from crawler.worker import app
 

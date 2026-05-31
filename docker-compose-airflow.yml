@@ -7,7 +7,7 @@ services:
     command: uv run --env-file=.env airflow db init
     environment:
       - PYTHONPATH=/dataflow
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=mysql+pymysql://root:ppWgnb_mfGe2m_@mysql/airflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN={AIRFLOW_DB_CONN}
     restart: on-failure
     deploy:
       mode: replicated
@@ -67,7 +67,7 @@ services:
     environment:
       - TZ=Asia/Taipei
       - PYTHONPATH=/dataflow
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=mysql+pymysql://root:ppWgnb_mfGe2m_@mysql/airflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN= {AIRFLOW_DB_CONN}
       # 必須保留：Airflow 用來監聽任務
       - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0

@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 import time
 from datetime import datetime
-from crawler.worker import app # 記得匯入 Celery app
+#from crawler.worker import app # 記得匯入 Celery app
 from sqlalchemy import create_engine  # 建立資料庫連線的工具（SQLAlchemy）
 from datetime import datetime, timedelta, timezone
 

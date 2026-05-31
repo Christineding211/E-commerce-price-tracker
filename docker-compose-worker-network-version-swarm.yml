@@ -20,6 +20,8 @@ services:
       - TZ=Asia/Taipei  # 設定時區為台北（UTC+8）
       - PYTHONPATH=/dataflow
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=mysql+pymysql://root:ppWgnb_mfGe2m_@mysql/airflow
+      - AIRFLOW__CELERY__CELERY_APP_NAME=crawler.worker.app
+      - AIRFLOW__CELERY__CELERY_APP_NAME=crawler.worker.app
       - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
     networks:

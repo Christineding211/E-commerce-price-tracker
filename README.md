@@ -15,6 +15,7 @@
     docker build -f with.env.Dockerfile_Airflow -t christine0211/e-commerce-airflow:0.0.8 .
     docker build -f with.env.Dockerfile_Airflow -t christine0211/e-commerce-airflow:0.0.9 .
     docker build -f with.env.Dockerfile_Airflow -t christine0211/e-commerce-airflow:0.0.10 .
+    docker build -f with.env.Dockerfile_Airflow -t christine0211/e-commerce-airflow:0.0.11 .
 
 #### push docker image
     -- docker tag my-crawler_dataflow:0.0.1 christine0211/e-commerce-crawler:airflow-0.0.1
@@ -28,6 +29,7 @@
     docker push christine0211/e-commerce-airflow:0.0.8
     docker push christine0211/e-commerce-airflow:0.0.9
     docker push christine0211/e-commerce-airflow:0.0.10
+    docker push christine0211/e-commerce-airflow:0.0.11
     
 
 
@@ -49,7 +51,7 @@
     DOCKER_IMAGE_VERSION=0.0.8 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
     DOCKER_IMAGE_VERSION=0.0.9 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
     DOCKER_IMAGE_VERSION=0.0.10 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
-
+    DOCKER_IMAGE_VERSION=0.0.11 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
 
 
     
