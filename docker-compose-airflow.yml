@@ -7,7 +7,8 @@ services:
     command: uv run --env-file=.env airflow db init
     environment:
       - PYTHONPATH=/dataflow
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN={AIRFLOW_DB_CONN}
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
+
     restart: on-failure
     deploy:
       mode: replicated
