@@ -67,13 +67,7 @@ services:
     environment:
       - TZ=Asia/Taipei
       - PYTHONPATH=/dataflow
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN= {AIRFLOW_DB_CONN}
-      # 必須保留：Airflow 用來監聽任務
-      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
-      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
-      # 必須保留：crawler/worker.py 程式碼內部連線使用
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - AIRFLOW_HOME=/dataflow
     deploy:
       mode: replicated
       replicas: 1
@@ -110,12 +104,7 @@ services:
     environment:
       - TZ=Asia/Taipei
       - PYTHONPATH=/dataflow
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=mysql+pymysql://root:ppWgnb_mfGe2m_@mysql/airflow
-      # 
-      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
-      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - AIRFLOW_HOME=/dataflow
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
@@ -127,7 +116,7 @@ services:
       - my_swarm_network
 
   # 通用 Airflow Worker
-  worker:
+  airflow_worker_default:
     image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
     restart: always
@@ -136,14 +125,10 @@ services:
     depends_on:
       - scheduler
     environment:
+      - TZ=Asia/Taipei
       - PYTHONPATH=/dataflow
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=mysql+pymysql://root:ppWgnb_mfGe2m_@mysql/airflow
-      # 
-      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
-      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    command: uv run --env-file=.env airflow celery worker --without-mingle --without-gossip -H "celery@%h" 
+      - AIRFLOW_HOME=/dataflow
+    command: uv run --env-file=.env airflow celery worker -q default --without-mingle --without-gossip -c 2 -H airflow-default@%h -l info
     deploy:
       mode: replicated
       replicas: 1
@@ -152,8 +137,8 @@ services:
     networks:
       - my_swarm_network
 
-  # PChome 專用爬蟲兵
-  crawler_pchome:
+  # only scrape pchome with airflow name 
+  airflow_worker_pchome:
     image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
     hostname: "docker-pchome-{{.Task.Slot}}"
     restart: always
@@ -162,14 +147,10 @@ services:
     depends_on:
       - scheduler
     environment:
+      - TZ=Asia/Taipei
       - PYTHONPATH=/dataflow
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=mysql+pymysql://root:ppWgnb_mfGe2m_@mysql/airflow
-      # 
-      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
-      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    command: uv run --env-file=.env airflow celery worker -q pchome_q --without-mingle --without-gossip -c 4 -H celery@%h -l info 
+      - AIRFLOW_HOME=/dataflow
+    command: uv run --env-file=.env airflow celery worker -q pchome_q --without-mingle --without-gossip -c 4 -H airflow-pchome@%h -l info
    
     deploy:
       mode: replicated
@@ -179,8 +160,8 @@ services:
     networks:
       - my_swarm_network
 
-  # Momo 專用爬蟲兵
-  crawler_momo:
+  
+  airflow_worker_momo:
     image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
     hostname: "docker-momo-{{.Task.Slot}}"
     restart: always
@@ -189,14 +170,10 @@ services:
     depends_on:
       - scheduler
     environment:
+      - TZ=Asia/Taipei
       - PYTHONPATH=/dataflow
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=mysql+pymysql://root:ppWgnb_mfGe2m_@mysql/airflow
-      # 
-      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
-      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    command: uv run --env-file=.env airflow celery worker -q momo_q --without-mingle --without-gossip -c 1 -H celery@%h -l info
+      - AIRFLOW_HOME=/dataflow
+    command: uv run --env-file=.env airflow celery worker -q momo_q --without-mingle --without-gossip -c 1 -H airflow-momo@%h -l info
     deploy:
       mode: replicated
       replicas: 1
