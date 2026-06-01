@@ -16,8 +16,7 @@ services:
       mode: replicated                      # 啟用 replicated 模式
       replicas: 1                           # 啟動一個副本（通常不會是 global）
       placement:
-        constraints: [node.role==manager] # 限定只能部署到 manager 節點（可改為 node label）
-        # constraints: [node.labels.rabbitmq==true]
+        constraints: [node.labels.rabbitmq==true]
     networks:
       - my_swarm_network                    # 使用自定義 overlay 網路（須事先建立）
 
@@ -37,8 +36,7 @@ services:
       mode: replicated
       replicas: 1
       placement:
-        constraints: [node.role==manager]
-        # constraints: [node.labels.rabbitmq==true]
+        constraints: [node.labels.rabbitmq==true]
     networks:
       - my_swarm_network
 

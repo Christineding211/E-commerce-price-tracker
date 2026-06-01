@@ -14,7 +14,7 @@ services:
       MYSQL_ROOT_PASSWORD: ppWgnb_mfGe2m_     # root 用戶密碼
       MYSQL_ROOT_HOST: '%'                    # 允許 root 從任何 host 連線（overlay network 需要）
     volumes:
-      - mysql:/var/lib/mysql        # 將資料庫資料持久化到 volume
+      - e-commerce-price-tracker_my_own_mysql_data:/var/lib/mysql        # 將資料庫資料持久化到 volume
     # 以下是 Docker Swarm 模式的設定
     deploy:
       mode: replicated              # 使用 replicated 模式，非 global
@@ -52,5 +52,5 @@ networks:
     external: true                 # 使用外部建立的 overlay 網路（需先執行 create）
 
 volumes:
-  mysql:
-    external: true                 # 使用事先建立好的 volume（避免 Docker stack 自動建立）
+  e-commerce-price-tracker_my_own_mysql_data:   
+    external: true                # 使用事先建立好的 volume（避免 Docker stack 自動建立）
