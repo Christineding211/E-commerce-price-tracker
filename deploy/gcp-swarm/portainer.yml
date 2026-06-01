@@ -1,0 +1,41 @@
+version: '3.2'  # 使用 Docker Compose v3.2，支援 Swarm 模式與 deploy 設定
+
+services:
+
+  agent:
+    image: portainer/agent              # 使用 Portainer 官方代理服務映像
+    environment:
+      AGENT_CLUSTER_ADDR: tasks.agent  # swarm 內部 DNS 名稱，用於服務發現（cluster 模式）
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # 允許 agent 操作本機 docker（必需）
+      - /var/lib/docker/volumes:/var/lib/docker/volumes  # 用於掛載容器 volume
+    networks:
+      - agent_network                   # 加入 overlay 網路供 portainer server 使用
+    deploy:
+      mode: global                      # 在 Swarm 中的每一個節點都部署一份 agent
+      placement:
+        constraints: [node.platform.os==linux]  # 限定只部署在 Linux 節點上（排除 Windows 節點）
+
+  portainer:
+    image: portainer/portainer-ce:2.0.1  # Portainer CE 2.0.1 版本
+    command: -H tcp://tasks.agent:9001 --tlsskipverify
+      # 連接到所有 agent 的 swarm DNS 名稱 `tasks.agent`，忽略 TLS 驗證（可強化）
+    ports:
+      - "9000:9000"   # Portainer Web UI（http://host:9000）
+      - "8000:8000"   # Portainer Edge agent 通道（可選）
+    volumes:
+      - portainer_data:/data  # 儲存 Portainer 的設定與資料
+    networks:
+      - agent_network          # 與 agent 共用同一個 overlay 網路
+    deploy:
+      mode: replicated
+      replicas: 1             # 僅部署一份 portainer server（建議放在 manager 節點）
+      placement:
+        constraints: [node.role==manager]  # 限定只能部署在 manager 節點（portainer server 限制）
+
+networks:
+  agent_network:
+    driver: overlay           # 建立 overlay 網路，允許 container 跨 Node 節點互聯
+
+volumes:
+  portainer_data:             # 定義一個 volume，用於持久化 portainer server 的資料

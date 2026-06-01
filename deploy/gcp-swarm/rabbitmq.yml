@@ -1,0 +1,47 @@
+version: '3'  # 使用 Docker Compose v3 語法，支援 Swarm 模式
+
+services:
+
+  rabbitmq:
+    image: 'rabbitmq:3.6-management-alpine'  # 使用輕量化的 RabbitMQ 映像，含管理 UI（port: 15672）
+    ports:
+      - '5672:5672'      # 開放 AMQP 通訊埠，Celery、其他服務會連這個
+      - '15672:15672'    # 開放 Web 管理介面（RabbitMQ Dashboard）
+    environment:
+      RABBITMQ_DEFAULT_USER: "worker"       # 預設帳號
+      RABBITMQ_DEFAULT_PASS: "worker"       # 預設密碼
+      RABBITMQ_DEFAULT_VHOST: "/"           # 預設 virtual host（多租戶支援）
+    # Docker Swarm 模式的設定
+    deploy:
+      mode: replicated                      # 啟用 replicated 模式
+      replicas: 1                           # 啟動一個副本（通常不會是 global）
+      placement:
+        constraints: [node.role==manager] # 限定只能部署到 manager 節點（可改為 node label）
+        # constraints: [node.labels.rabbitmq==true]
+    networks:
+      - my_swarm_network                    # 使用自定義 overlay 網路（須事先建立）
+
+  flower:
+    image: mher/flower:0.9.5                # Flower 是 Celery 的 Web 監控工具
+    command: 
+      - "flower"
+      - "--broker=amqp://worker:worker@rabbitmq"
+      - "--port=5555"
+      # 使用環境變數中的 worker 帳號連接 rabbitmq broker
+    ports:
+      - 5555:5555                           # Flower 的 Web UI 埠口（http://localhost:5555）
+    depends_on:
+      - rabbitmq                            # 啟動前先等 rabbitmq 就緒（僅適用於 docker-compose up，不保證順序）
+    # Swarm 部署設定
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role==manager]
+        # constraints: [node.labels.rabbitmq==true]
+    networks:
+      - my_swarm_network
+
+networks:
+  my_swarm_network:
+    external: true  # 使用外部建立的 overlay 網路（需先手動建立）
