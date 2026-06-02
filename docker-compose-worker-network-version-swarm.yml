@@ -12,7 +12,8 @@ services:
         
         # 只允許在擁有 "crawler_pchome=true" 識別證的機器上執行
         constraints: [node.labels.crawler_pchome==true]
-    restart: always  
+    restart: always 
+    environment: 
       - TZ=Asia/Taipei 
       - PYTHONPATH=/dataflow
       - AIRFLOW_HOME=/dataflow

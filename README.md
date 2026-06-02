@@ -63,3 +63,28 @@
 #### 移除 airflow stack
 
     docker stack rm airflow
+
+
+# GCP deploy
+
+## Portainer
+http://127.0.0.1:9000
+
+## create-mysql-volume:
+	docker volume create mysql
+
+## remove-network
+	docker network rm my_swarm_network
+
+## create-network:
+	docker network create --scope=swarm --driver=overlay my_swarm_network
+	docker network create --scope=swarm --driver=overlay --attachable my_swarm_network
+
+## deploy-docker swarm:
+    docker stack deploy -c deploy/gcp-single-vm/portainer.yml por
+
+## deploy-mysql:
+    docker stack deploy --with-registry-auth -c deploy/gcp-single-vm/mysql.yml mysql
+
+
+## deploy-rabbitmq:
