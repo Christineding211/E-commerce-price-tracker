@@ -83,7 +83,7 @@ services:
     restart: always
     depends_on:
       - redis
-    command: ["celery", "--broker=redis://redis:6379/0", "flower", "--port=5555"]
+    command: ["celery", "--broker=redis://airflow_redis:6379/0", "flower", "--port=5555"] # revised to gcp connection name
     ports:
       - "5556:5555"
     deploy:
