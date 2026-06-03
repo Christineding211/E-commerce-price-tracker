@@ -89,3 +89,8 @@ http://127.0.0.1:9000
 
 
 ## deploy-rabbitmq:
+
+    docker stack deploy --with-registry-auth -c deploy/gcp-single-vm/rabbitmq.yml rabbitmq
+## deploy airflow:
+git pull
+    DOCKER_IMAGE_VERSION=0.0.12 docker stack deploy --with-registry-auth -c deploy/gcp-single-vm/docker-compose-airflow-gce.yml airflow
