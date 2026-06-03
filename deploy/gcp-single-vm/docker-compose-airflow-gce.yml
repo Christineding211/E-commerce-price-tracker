@@ -1,8 +1,8 @@
-version: '3.8' # 升級至更穩定的 3.8 版本
+version: '3.8'
 
 services:
   # =========================================================================
-  # 基礎建設與初始化 (Infrastructure & Init)
+  # Infrastructure & Init)
   # =========================================================================
 
   # 初始化 Airflow 資料庫
@@ -41,7 +41,7 @@ services:
       - my_swarm_network
 
   # Redis：Celery 的訊息中介所
-  redis: 
+  redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
@@ -57,7 +57,7 @@ services:
       - my_swarm_network
 
   # =========================================================================
-  # Airflow 核心組件 (Airflow Core Components)
+  # Airflow (Airflow Core Components)
   # =========================================================================
 
   # Airflow Web UI 介面
@@ -76,7 +76,10 @@ services:
       AIRFLOW_HOME: /dataflow
       AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
       AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN} # 👈 修正語法並移除重複項
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
+      # 指定redis連線
+      AIRFLOW__CELERY__BROKER_URL: redis://airflow_redis:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: redis://airflow_redis:6379/1
     deploy:
       mode: replicated
       replicas: 1
@@ -100,6 +103,9 @@ services:
       AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
       AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
+   
+      AIRFLOW__CELERY__BROKER_URL: redis://airflow_redis:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: redis://airflow_redis:6379/1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
@@ -128,7 +134,7 @@ services:
       - my_swarm_network
 
   # =========================================================================
-  # Celery 分散式 (Airflow Celery Workers)
+  # Celery  (Airflow Celery Workers)
   # =========================================================================
 
   # 通用 Airflow Worker
@@ -145,6 +151,9 @@ services:
       AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
       AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
+      
+      AIRFLOW__CELERY__BROKER_URL: redis://airflow_redis:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: redis://airflow_redis:6379/1
     command: uv run --env-file=.env airflow celery worker -q default --without-mingle --without-gossip -c 2 -H airflow-default@%h -l info
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -170,6 +179,9 @@ services:
       AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
       AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
+      
+      AIRFLOW__CELERY__BROKER_URL: redis://airflow_redis:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: redis://airflow_redis:6379/1
     command: uv run --env-file=.env airflow celery worker -q pchome_q --without-mingle --without-gossip -c 4 -H airflow-pchome@%h -l info
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -195,6 +207,9 @@ services:
       AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
       AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
+      
+      AIRFLOW__CELERY__BROKER_URL: redis://airflow_redis:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: redis://airflow_redis:6379/1
     command: uv run --env-file=.env airflow celery worker -q momo_q --without-mingle --without-gossip -c 1 -H airflow-momo@%h -l info
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -205,8 +220,7 @@ services:
         constraints: [node.labels.airflow==true]
     networks:
       - my_swarm_network
-
-
+      
 networks:
   my_swarm_network:
     external: true
