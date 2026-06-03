@@ -41,7 +41,7 @@ services:
       - my_swarm_network
 
   # Redis：Celery 的訊息中介所
-  airflow_redis: # 👈 正名為 airflow_redis，對齊 Flower 的連線設定
+  redis: 
     image: redis:7-alpine
     ports:
       - "6379:6379"
