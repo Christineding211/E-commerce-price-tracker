@@ -1,0 +1,201 @@
+version: '3.0'
+
+services:
+  # 初始化 Airflow 資料庫
+  initdb:
+    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
+    command: uv run --env-file=.env airflow db init
+    environment:
+      PYTHONPATH: /dataflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
+
+    restart: on-failure
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+      - my_swarm_network
+
+  # 建立 Airflow 使用者
+  create-user:
+    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
+    command: >-
+      uv run --env-file=.env airflow users create
+      --username admin --firstname ding --lastname christine
+      --role Admin -p admin
+      --email christineding0211@gmail.com
+    depends_on:
+      - initdb
+    restart: on-failure
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+      - my_swarm_network
+
+  # Redis：Celery 的訊息中介所
+  redis:
+    image: 'bitnami/redis:latest'
+    ports:
+      - 6379:6379
+    volumes:
+      - 'redis_data:/bitnami/redis/data'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+      - my_swarm_network
+
+  # Airflow Web UI 介面
+  webserver:
+    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
+    hostname: "airflow-webserver"
+    command: uv run --env-file=.env airflow webserver -p 5000
+    depends_on:
+      - initdb
+    restart: always
+    ports:
+      - 5000:5000
+    environment:
+      - TZ=Asia/Taipei
+      - PYTHONPATH=/dataflow
+      - AIRFLOW_HOME=/dataflow
+      - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
+      - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+      - my_swarm_network
+
+  # Flower：Celery 戰情監控面板
+  flower:
+    image: mher/flower:2.0.1
+    restart: always
+    depends_on:
+      - redis
+    command: ["celery", "--broker=redis://redis:6379/0", "flower", "--port=5555"]
+    ports:
+      - "5556:5555"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+      - my_swarm_network
+  
+  # Airflow 排程器
+  scheduler:
+    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
+    hostname: "airflow-scheduler"
+    command: uv run --env-file=.env airflow scheduler
+    depends_on:
+      - initdb
+    restart: always
+    environment:
+      - TZ=Asia/Taipei
+      - PYTHONPATH=/dataflow
+      - AIRFLOW_HOME=/dataflow
+      - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
+      - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+      - my_swarm_network
+
+  # 通用 Airflow Worker
+  airflow_worker_default:
+    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - scheduler
+    environment:
+      - TZ=Asia/Taipei
+      - PYTHONPATH=/dataflow
+      - AIRFLOW_HOME=/dataflow
+      - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
+      - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
+    command: uv run --env-file=.env airflow celery worker -q default --without-mingle --without-gossip -c 2 -H airflow-default@%h -l info 
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.worker==true]
+    networks:
+      - my_swarm_network
+
+  # only scrape pchome with airflow name 
+  airflow_worker_pchome:
+    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
+    hostname: "docker-pchome-{{.Task.Slot}}"
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - scheduler
+    environment:
+      - TZ=Asia/Taipei
+      - PYTHONPATH=/dataflow
+      - AIRFLOW_HOME=/dataflow
+      - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
+      - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
+    command: uv run --env-file=.env airflow celery worker -q pchome_q --without-mingle --without-gossip -c 4 -H airflow-pchome@%h -l info 
+   
+    deploy:
+      mode: replicated
+      replicas: 3
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+      - my_swarm_network
+
+  
+  airflow_worker_momo:
+    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
+    hostname: "docker-momo-{{.Task.Slot}}"
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - scheduler
+    environment:
+      - TZ=Asia/Taipei
+      - PYTHONPATH=/dataflow
+      - AIRFLOW_HOME=/dataflow
+      - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
+      - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
+    command: uv run --env-file=.env airflow celery worker -q momo_q --without-mingle --without-gossip -c 1 -H airflow-momo@%h -l info 
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow==true]
+    networks:
+      - my_swarm_network
+
+networks:
+  my_swarm_network:
+    external: true
+
+volumes:
+  redis_data:
