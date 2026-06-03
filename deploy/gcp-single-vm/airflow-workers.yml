@@ -1,0 +1,47 @@
+version: '3.0'  # 使用 Docker Compose 的版本 3.0，適合大部分部署場景
+
+services:
+  airflow_worker_pchome:  
+    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION} # use airflow image version
+    hostname: "airflow-pchome-{{.Task.Slot}}"
+    command:  uv run --env-file=.env airflow celery worker -q pchome_q -c 4 -H airflow-pchome@%h -l info
+    deploy:
+      mode: replicated
+      replicas: 3
+      placement:
+        
+        # only use in single vm
+        constraints: [node.role==manager]
+    restart: always 
+    environment: 
+      - TZ=Asia/Taipei 
+      - PYTHONPATH=/dataflow
+      - AIRFLOW_HOME=/dataflow
+      #incase  ModuleNotFoundError: No module named 'crawler', ModuleNotFoundError: No module named 'dataflow'
+     
+    networks:
+      - my_swarm_network 
+
+  airflow_worker_momo:  
+    image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION} 
+    hostname: "airflow-momo-{{.Task.Slot}}"
+    command: uv run --env-file=.env airflow celery worker -q momo_q -c 1 -H airflow-momo@%h -l info
+   
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        
+        constraints: [node.role==manager]
+    restart: always  
+    environment:
+      - TZ=Asia/Taipei  
+      - PYTHONPATH=/dataflow
+      - AIRFLOW_HOME=/dataflow
+    networks:
+      - my_swarm_network  
+
+networks:
+  my_swarm_network:
+    
+    external: true

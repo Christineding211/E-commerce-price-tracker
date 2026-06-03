@@ -56,6 +56,7 @@
     DOCKER_IMAGE_VERSION=0.0.10 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
     DOCKER_IMAGE_VERSION=0.0.11 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
     DOCKER_IMAGE_VERSION=0.0.12 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
+    
 
 
     
