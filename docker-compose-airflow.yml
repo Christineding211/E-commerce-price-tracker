@@ -45,7 +45,7 @@ services:
     volumes:
       - 'redis_data:/bitnami/redis/data'
     environment:
-      - ALLOW_EMPTY_PASSWORD=yes
+      ALLOW_EMPTY_PASSWORD: yes
     restart: always
     deploy:
       mode: replicated
@@ -66,9 +66,9 @@ services:
     ports:
       - 5000:5000
     environment:
-      - TZ=Asia/Taipei
-      - PYTHONPATH=/dataflow
-      - AIRFLOW_HOME=/dataflow
+      TZ: "Asia/Taipei"
+      PYTHONPATH: /dataflow
+      AIRFLOW_HOME: /dataflow
     deploy:
       mode: replicated
       replicas: 1
@@ -103,9 +103,10 @@ services:
       - initdb
     restart: always
     environment:
-      - TZ=Asia/Taipei
-      - PYTHONPATH=/dataflow
-      - AIRFLOW_HOME=/dataflow
+      TZ: "Asia/Taipei"
+      PYTHONPATH: /dataflow
+      AIRFLOW_HOME: /dataflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
@@ -126,9 +127,10 @@ services:
     depends_on:
       - scheduler
     environment:
-      - TZ=Asia/Taipei
-      - PYTHONPATH=/dataflow
-      - AIRFLOW_HOME=/dataflow
+      TZ: "Asia/Taipei"
+      PYTHONPATH: /dataflow
+      AIRFLOW_HOME: /dataflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
     command: uv run --env-file=.env airflow celery worker -q default --without-mingle --without-gossip -c 2 -H airflow-default@%h -l info 
     deploy:
       mode: replicated
@@ -148,9 +150,10 @@ services:
     depends_on:
       - scheduler
     environment:
-      - TZ=Asia/Taipei
-      - PYTHONPATH=/dataflow
-      - AIRFLOW_HOME=/dataflow
+      TZ: "Asia/Taipei"
+      PYTHONPATH: /dataflow
+      AIRFLOW_HOME: /dataflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
     command: uv run --env-file=.env airflow celery worker -q pchome_q --without-mingle --without-gossip -c 4 -H airflow-pchome@%h -l info 
    
     deploy:
@@ -171,9 +174,10 @@ services:
     depends_on:
       - scheduler
     environment:
-      - TZ=Asia/Taipei
-      - PYTHONPATH=/dataflow
-      - AIRFLOW_HOME=/dataflow
+      TZ: "Asia/Taipei"
+      PYTHONPATH: /dataflow
+      AIRFLOW_HOME: /dataflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
     command: uv run --env-file=.env airflow celery worker -q momo_q --without-mingle --without-gossip -c 1 -H airflow-momo@%h -l info 
     deploy:
       mode: replicated
