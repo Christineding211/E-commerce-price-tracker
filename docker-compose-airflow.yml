@@ -69,6 +69,10 @@ services:
       TZ: "Asia/Taipei"
       PYTHONPATH: /dataflow
       AIRFLOW_HOME: /dataflow
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key
+    secrets:
+      - source: gcp_service_account_key
+        target: gcp_key
     deploy:
       mode: replicated
       replicas: 1
@@ -107,6 +111,10 @@ services:
       PYTHONPATH: /dataflow
       AIRFLOW_HOME: /dataflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key
+    secrets:
+      - source: gcp_service_account_key
+        target: gcp_key
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
@@ -131,6 +139,10 @@ services:
       PYTHONPATH: /dataflow
       AIRFLOW_HOME: /dataflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key
+    secrets:
+      - source: gcp_service_account_key
+        target: gcp_key
     command: uv run --env-file=.env airflow celery worker -q default --without-mingle --without-gossip -c 2 -H airflow-default@%h -l info 
     deploy:
       mode: replicated
@@ -154,6 +166,10 @@ services:
       PYTHONPATH: /dataflow
       AIRFLOW_HOME: /dataflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key
+    secrets:
+      - source: gcp_service_account_key
+        target: gcp_key
     command: uv run --env-file=.env airflow celery worker -q pchome_q --without-mingle --without-gossip -c 4 -H airflow-pchome@%h -l info 
    
     deploy:
@@ -178,6 +194,10 @@ services:
       PYTHONPATH: /dataflow
       AIRFLOW_HOME: /dataflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key
+    secrets:
+      - source: gcp_service_account_key
+        target: gcp_key
     command: uv run --env-file=.env airflow celery worker -q momo_q --without-mingle --without-gossip -c 1 -H airflow-momo@%h -l info 
     deploy:
       mode: replicated
@@ -193,3 +213,7 @@ networks:
 
 volumes:
   redis_data:
+
+secrets:
+  gcp_service_account_key:
+    external: true
