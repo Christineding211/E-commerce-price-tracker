@@ -39,13 +39,12 @@ services:
 
   # Redis：Celery 的訊息中介所
   redis:
-    image: 'bitnami/redis:latest'
+    image: redis:7
+    command: redis-server --appendonly yes
     ports:
       - 6379:6379
     volumes:
-      - 'redis_data:/bitnami/redis/data'
-    environment:
-      ALLOW_EMPTY_PASSWORD: yes
+      - redis_data:/data
     restart: always
     deploy:
       mode: replicated
