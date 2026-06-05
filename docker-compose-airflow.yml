@@ -59,6 +59,8 @@ services:
     image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
     hostname: "airflow-webserver"
     command: uv run --env-file=.env airflow webserver -p 5000
+    env_file:
+      - .env
     depends_on:
       - initdb
     restart: always
@@ -68,10 +70,10 @@ services:
       TZ: "Asia/Taipei"
       PYTHONPATH: /dataflow
       AIRFLOW_HOME: /dataflow
-      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key.json
     secrets:
       - source: gcp_service_account_key
-        target: gcp_key
+        target: gcp_key.json
     deploy:
       mode: replicated
       replicas: 1
@@ -102,6 +104,8 @@ services:
     image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
     hostname: "airflow-scheduler"
     command: uv run --env-file=.env airflow scheduler
+    env_file:
+      - .env
     depends_on:
       - initdb
     restart: always
@@ -110,10 +114,10 @@ services:
       PYTHONPATH: /dataflow
       AIRFLOW_HOME: /dataflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
-      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key.json
     secrets:
       - source: gcp_service_account_key
-        target: gcp_key
+        target: gcp_key.json
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
@@ -129,6 +133,8 @@ services:
     image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
     restart: always
+    env_file:
+      - .env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
@@ -138,10 +144,10 @@ services:
       PYTHONPATH: /dataflow
       AIRFLOW_HOME: /dataflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
-      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key.json
     secrets:
       - source: gcp_service_account_key
-        target: gcp_key
+        target: gcp_key.json
     command: uv run --env-file=.env airflow celery worker -q default --without-mingle --without-gossip -c 2 -H airflow-default@%h -l info 
     deploy:
       mode: replicated
@@ -156,6 +162,8 @@ services:
     image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
     hostname: "docker-pchome-{{.Task.Slot}}"
     restart: always
+    env_file:
+      - .env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
@@ -165,10 +173,10 @@ services:
       PYTHONPATH: /dataflow
       AIRFLOW_HOME: /dataflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
-      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key.json
     secrets:
       - source: gcp_service_account_key
-        target: gcp_key
+        target: gcp_key.json
     command: uv run --env-file=.env airflow celery worker -q pchome_q --without-mingle --without-gossip -c 4 -H airflow-pchome@%h -l info 
    
     deploy:
@@ -184,6 +192,8 @@ services:
     image: christine0211/e-commerce-airflow:${DOCKER_IMAGE_VERSION}
     hostname: "docker-momo-{{.Task.Slot}}"
     restart: always
+    env_file:
+      - .env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
@@ -193,10 +203,10 @@ services:
       PYTHONPATH: /dataflow
       AIRFLOW_HOME: /dataflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
-      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key.json
     secrets:
       - source: gcp_service_account_key
-        target: gcp_key
+        target: gcp_key.json
     command: uv run --env-file=.env airflow celery worker -q momo_q --without-mingle --without-gossip -c 1 -H airflow-momo@%h -l info 
     deploy:
       mode: replicated
