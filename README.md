@@ -59,6 +59,7 @@
     DOCKER_IMAGE_VERSION=0.0.10 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
     DOCKER_IMAGE_VERSION=0.0.11 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
     DOCKER_IMAGE_VERSION=0.0.12 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
+    DOCKER_IMAGE_VERSION=0.0.13 docker stack deploy --with-registry-auth -c docker-compose-airflow.yml airflow
     
 
 
@@ -95,5 +96,27 @@ http://127.0.0.1:9000
 
     docker stack deploy --with-registry-auth -c deploy/gcp-single-vm/rabbitmq.yml rabbitmq
 ## deploy airflow:
-git pull
+
     DOCKER_IMAGE_VERSION=0.0.12 docker stack deploy --with-registry-auth -c deploy/gcp-single-vm/docker-compose-airflow-gce.yml airflow
+    DOCKER_IMAGE_VERSION=0.0.13 docker stack deploy --with-registry-auth -c deploy/gcp-single-vm/docker-compose-airflow-gce.yml airflow
+
+# Cloud analytics test flow
+
+The Airflow DAG now includes a first cloud analytics test for the
+`product_price_timeline` mart:
+
+1. Export `product_price_timeline` from MySQL as a CSV object in GCS.
+2. Load the CSV object from GCS into BigQuery.
+
+Required `.env` values:
+
+    GCP_PROJECT_ID=your-gcp-project-id
+    GCS_BUCKET=your-gcs-bucket-name
+    BQ_DATASET=ecommerce
+    BQ_LOCATION=us-central1
+
+The Airflow runtime also needs Google Cloud credentials with permission to write
+objects to the GCS bucket and create/load the BigQuery table. On GCE, this can
+come from the VM service account. For local containers, set
+`GOOGLE_APPLICATION_CREDENTIALS` and mount the service account key into the
+Airflow scheduler and worker containers.

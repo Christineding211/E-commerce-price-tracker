@@ -78,8 +78,8 @@ services:
       AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
       # 指定redis連線
-      AIRFLOW__CELERY__BROKER_URL: redis://airflow_redis:6379/0
-      AIRFLOW__CELERY__RESULT_BACKEND: redis://airflow_redis:6379/1
+      AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: redis://redis:6379/1
     deploy:
       mode: replicated
       replicas: 1
@@ -104,8 +104,8 @@ services:
       AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
    
-      AIRFLOW__CELERY__BROKER_URL: redis://airflow_redis:6379/0
-      AIRFLOW__CELERY__RESULT_BACKEND: redis://airflow_redis:6379/1
+      AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: redis://redis:6379/1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
@@ -121,8 +121,8 @@ services:
     image: mher/flower:2.0.1
     restart: always
     depends_on:
-      - airflow_redis
-    command: ["celery", "--broker=redis://airflow_redis:6379/0", "flower", "--port=5555"]
+      - redis
+    command: ["celery", "--broker=redis://redis:6379/0", "flower", "--port=5555"]
     ports:
       - "5556:5555"
     deploy:
@@ -152,8 +152,8 @@ services:
       AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
       
-      AIRFLOW__CELERY__BROKER_URL: redis://airflow_redis:6379/0
-      AIRFLOW__CELERY__RESULT_BACKEND: redis://airflow_redis:6379/1
+      AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: redis://redis:6379/1
     command: uv run --env-file=.env airflow celery worker -q default --without-mingle --without-gossip -c 2 -H airflow-default@%h -l info
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -180,8 +180,8 @@ services:
       AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
       
-      AIRFLOW__CELERY__BROKER_URL: redis://airflow_redis:6379/0
-      AIRFLOW__CELERY__RESULT_BACKEND: redis://airflow_redis:6379/1
+      AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: redis://redis:6379/1
     command: uv run --env-file=.env airflow celery worker -q pchome_q --without-mingle --without-gossip -c 4 -H airflow-pchome@%h -l info
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -208,8 +208,8 @@ services:
       AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
       
-      AIRFLOW__CELERY__BROKER_URL: redis://airflow_redis:6379/0
-      AIRFLOW__CELERY__RESULT_BACKEND: redis://airflow_redis:6379/1
+      AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: redis://redis:6379/1
     command: uv run --env-file=.env airflow celery worker -q momo_q --without-mingle --without-gossip -c 1 -H airflow-momo@%h -l info
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -220,7 +220,7 @@ services:
         constraints: [node.labels.airflow==true]
     networks:
       - my_swarm_network
-      
+
 networks:
   my_swarm_network:
     external: true

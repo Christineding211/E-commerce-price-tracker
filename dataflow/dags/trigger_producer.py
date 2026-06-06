@@ -15,11 +15,12 @@ from dataflow.etl.refresh_stg_pchome import create_refresh_stg_pchome_task
 from dataflow.etl.refresh_fct_daily import create_refresh_fct_daily_task
 from dataflow.etl.trigger_producer import create_scraper_tasks
 from dataflow.etl.export_product_price_timeline_to_bigquery import (
-    create_product_price_timeline_cloud_tasks,
+    create_product_price_timeline_cloud_tasks
 )
 from dataflow.etl.export_fct_daily_prices_to_bigquery import (
-    create_fct_daily_prices_cloud_tasks,
+    create_fct_daily_prices_cloud_tasks
 )
+
 
 
 
@@ -67,19 +68,26 @@ with airflow.DAG(
         export_product_price_timeline_to_gcs_task,
         load_product_price_timeline_to_bigquery_task,
     ) = create_product_price_timeline_cloud_tasks()
+
     (
         validate_fct_daily_prices_cloud_config_task,
         export_fct_daily_prices_to_gcs_task,
         load_fct_daily_prices_to_bigquery_task,
     ) = create_fct_daily_prices_cloud_tasks()
 
+
+
     # 定義任務依賴關係
+
     start_pipeline_marker >> all_crawler_tasks
     all_crawler_tasks >> crawlers_done_marker
 
     crawlers_done_marker >> [stg_momo_task, stg_pchome_task]
+
     [stg_momo_task, stg_pchome_task] >> fct_daily_task
+
     fct_daily_task >> [
         validate_product_price_timeline_cloud_config_task,
         validate_fct_daily_prices_cloud_config_task,
     ]
+    
