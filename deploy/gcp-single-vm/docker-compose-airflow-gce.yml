@@ -151,6 +151,8 @@ services:
       AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
       AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: headphone_db
       
       AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
       AIRFLOW__CELERY__RESULT_BACKEND: redis://redis:6379/1
@@ -179,6 +181,8 @@ services:
       AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
       AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: headphone_db
       
       AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
       AIRFLOW__CELERY__RESULT_BACKEND: redis://redis:6379/1
@@ -207,6 +211,8 @@ services:
       AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
       AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: headphone_db
       
       AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
       AIRFLOW__CELERY__RESULT_BACKEND: redis://redis:6379/1

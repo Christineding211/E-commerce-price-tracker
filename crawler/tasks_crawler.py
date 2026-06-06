@@ -7,7 +7,13 @@ from sqlalchemy import create_engine  # 建立資料庫連線的工具（SQLAlch
 from datetime import datetime, timedelta, timezone
 
 
-from crawler.config import MYSQL_ACCOUNT, MYSQL_HOST, MYSQL_PASSWORD, MYSQL_PORT
+from crawler.config import (
+    MYSQL_ACCOUNT,
+    MYSQL_DATABASE,
+    MYSQL_HOST,
+    MYSQL_PASSWORD,
+    MYSQL_PORT,
+)
 
 
 # 加上裝飾器，讓它變成可派送的任務
@@ -193,13 +199,16 @@ def upload_data_to_mysql(df: pd.DataFrame, table_name: str):
     # 格式：mysql+pymysql://使用者:密碼@主機:port/資料庫名稱
     # 上傳到 mydb, 同學可切換成自己的 database
     try:
-        address = f"mysql+pymysql://{MYSQL_ACCOUNT}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/headphone_db"
+        address = (
+            f"mysql+pymysql://{MYSQL_ACCOUNT}:{MYSQL_PASSWORD}"
+            f"@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"
+        )
 
         # 建立 SQLAlchemy 引擎物件
 
         print(
             f"Uploading {len(df)} rows to MySQL table {table_name} "
-            f"at {MYSQL_HOST}:{MYSQL_PORT}/headphone_db"
+            f"at {MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"
         )
         engine = create_engine(address)
 
