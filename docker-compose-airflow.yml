@@ -210,6 +210,8 @@ services:
       AIRFLOW_HOME: /dataflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
       GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key.json
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: headphone_db
     secrets:
       - source: gcp_service_account_key
         target: gcp_key.json
