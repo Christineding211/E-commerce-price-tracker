@@ -43,7 +43,7 @@ def crawler_pchome_print(brand_name, search_keyword):
         if resp.status_code != 200:
             error_msg = f"❌ 請求失敗 {brand_name}, 代碼: {resp.status_code}"
             print(error_msg)
-            return error_msg  #在 Flower 的結果欄位會看到這串字
+            raise RuntimeError(error_msg)
 
         first_res = resp.json()
         total_page = first_res.get("TotalPage", 1)
@@ -91,14 +91,14 @@ def crawler_pchome_print(brand_name, search_keyword):
             print(f"\n {brand_name}結束，共獲取 {len(df)} 筆資料")
 
             upload_data_to_mysql(df, "raw_pchome_prices")
-            return f"{brand_name} success and uploaded"
+            return f"{brand_name} success and uploaded {len(df)} rows to raw_pchome_prices"
         else:
             print(f" {brand_name} 沒有抓到資料")
             return f"{brand_name} no data"
 
     except Exception as e:
         print(f"正在抓取 {brand_name} 時發生問題: {e}")
-        return "Error"
+        raise
 
 
 
@@ -132,7 +132,7 @@ def scrape_momo(brand_name, keywords):
         if first_res.status_code != 200:
             error_msg = f"❌ 請求失敗 {brand_name}, 代碼: {first_res.status_code}"
             print(error_msg)
-            return error_msg  #在 Flower 的結果欄位會看到這串字
+            raise RuntimeError(error_msg)
         
         first_res=  first_res.json()
         total_page = first_res.get('maxPage',1)
@@ -176,13 +176,14 @@ def scrape_momo(brand_name, keywords):
             print(f"\n {brand_name}結束，共獲取 {len(df)} 筆資料")
 
             upload_data_to_mysql(df, "raw_momo_prices")
-            return f"{brand_name} success and uploaded"
+            return f"{brand_name} success and uploaded {len(df)} rows to raw_momo_prices"
         else:
             print(f" {brand_name} 沒有抓到資料")
             return f"{brand_name} no data"
 
     except Exception as e:
         print(f"正在抓取{brand_name} 時發生問題",e)
+        raise
 
 
 
@@ -196,6 +197,10 @@ def upload_data_to_mysql(df: pd.DataFrame, table_name: str):
 
         # 建立 SQLAlchemy 引擎物件
 
+        print(
+            f"Uploading {len(df)} rows to MySQL table {table_name} "
+            f"at {MYSQL_HOST}:{MYSQL_PORT}/headphone_db"
+        )
         engine = create_engine(address)
 
         df.to_sql(
@@ -207,3 +212,4 @@ def upload_data_to_mysql(df: pd.DataFrame, table_name: str):
         print(f"成功寫入 {len(df)} 筆資料至 {table_name}")
     except Exception as e:
         print("fail to upload to db", e)
+        raise

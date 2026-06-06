@@ -62,18 +62,24 @@ with airflow.DAG(
     # 5. Fact Daily 任務
     fct_daily_task = create_refresh_fct_daily_task()
 
-    # 6. Cloud analytics smoke test: MySQL mart -> CSV in GCS -> BigQuery
+    # 6. Cloud analytics exports: MySQL marts -> CSV in GCS -> BigQuery
     (
         validate_product_price_timeline_cloud_config_task,
         export_product_price_timeline_to_gcs_task,
         load_product_price_timeline_to_bigquery_task,
     ) = create_product_price_timeline_cloud_tasks()
 
+    # Runs in parallel with product_price_timeline after fct_daily is refreshed.
     (
         validate_fct_daily_prices_cloud_config_task,
         export_fct_daily_prices_to_gcs_task,
         load_fct_daily_prices_to_bigquery_task,
     ) = create_fct_daily_prices_cloud_tasks()
+
+    cloud_export_config_tasks = [
+        validate_product_price_timeline_cloud_config_task,
+        validate_fct_daily_prices_cloud_config_task,
+    ]
 
 
 
@@ -86,8 +92,4 @@ with airflow.DAG(
 
     [stg_momo_task, stg_pchome_task] >> fct_daily_task
 
-    fct_daily_task >> [
-        validate_product_price_timeline_cloud_config_task,
-        validate_fct_daily_prices_cloud_config_task,
-    ]
-    
+    fct_daily_task >> cloud_export_config_tasks
