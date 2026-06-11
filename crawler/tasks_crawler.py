@@ -152,8 +152,11 @@ def scrape_momo(brand_name, keywords):
             for item in product:
                 name_tag = item.get('goodsName','未知').strip()
                 id_tag = item.get('goodsCode','')
-                clean_price = item.get('goodsPriceModel',{}).get('basePrice',{}).get('price', 0)
-                price_tag = str(clean_price).replace(',','')
+                clean_price = item.get('goodsPriceModel', {}).get('basePrice', {}).get('price', '')
+                price_tag = str(clean_price).replace(',', '').strip()
+                if price_tag == "" or not price_tag.isdigit():
+                    print(f"跳過商品，價格異常：{name_tag}，原始價格={clean_price}")
+                    continue
                 sales_tag = item.get('totalSalesInfo',{}).get('text', '').strip()
                 raw_rating = item.get('rating','0')
                 try:
