@@ -32,8 +32,7 @@ def crawler_pchome_print(brand_name, search_keyword):
     NOISE_CANCEL_ATTR = "G25I21304"
 
     
-    # 注意：這個 total_result 必須放在函式裡面！
-    # 這樣每個工人 (每個 Task) 才會擁有自己獨立的清單，不會跟別人打架
+    
     total_result = []
 
     params = {
@@ -47,7 +46,7 @@ def crawler_pchome_print(brand_name, search_keyword):
     try:
         resp = requests.get(url, headers=headers, params=params)
         if resp.status_code != 200:
-            error_msg = f"❌ 請求失敗 {brand_name}, 代碼: {resp.status_code}"
+            error_msg = f"請求失敗 {brand_name}, 代碼: {resp.status_code}"
             print(error_msg)
             raise RuntimeError(error_msg)
 
@@ -136,7 +135,7 @@ def scrape_momo(brand_name, keywords):
     try:
         first_res = requests.post(url, headers = headers, json = payload)
         if first_res.status_code != 200:
-            error_msg = f"❌ 請求失敗 {brand_name}, 代碼: {first_res.status_code}"
+            error_msg = f"請求失敗 {brand_name}, 代碼: {first_res.status_code}"
             print(error_msg)
             raise RuntimeError(error_msg)
         
