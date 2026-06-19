@@ -1,7 +1,7 @@
-version: '3.0'  # 使用 Docker Compose 的版本 3.0，適合大部分部署場景
+version: '3.0'  
 
 services:
-  producer_multi_queue:  # 定義一個服務，名稱為 crawler_twse
+  producer_multi_queue:  
     image: my-crawler:${DOCKER_IMAGE_VERSION} # 使用的映像檔名稱與標籤（版本）
     hostname: "producer_multi_queue"  # 設定 hostname 
     command: uv run --env-file=.env python -m crawler.producer_multi_queue
@@ -13,11 +13,11 @@ services:
         # 設定在
         # node label producer = true 的機器上執行
         constraints: [node.labels.producer_ecommerce==true]
-    restart: on-failure  # 失敗才重啟, 不要頻繁重啟, 發送任務
+    restart: on-failure  
     environment:
-      - TZ=Asia/Taipei  # 設定時區為台北（UTC+8）
+      - TZ=Asia/Taipei  
     networks:
-      - my_swarm_network  # 將此服務連接到 my_swarm_network 網路
+      - my_swarm_network  
 
 networks:
   my_swarm_network:
