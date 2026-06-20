@@ -77,3 +77,5 @@ def create_product_price_timeline_cloud_tasks():
     validate_config_task >> export_to_gcs_task >> load_to_bigquery_task
 
     return validate_config_task, export_to_gcs_task, load_to_bigquery_task
+
+
