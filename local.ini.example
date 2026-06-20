@@ -1,32 +1,32 @@
-# dev 環境
+# dev 
 [DEV]
 WORKER_ACCOUNT = worker
-WORKER_PASSWORD = worker
+WORKER_PASSWORD = your_password
 RABBITMQ_HOST = 127.0.0.1
 RABBITMQ_PORT = 5672
 MYSQL_HOST = 127.0.0.1
 MYSQL_PORT = 3306
 MYSQL_ACCOUNT = root
-MYSQL_PASSWORD = ppWgnb_mfGe2m_
+MYSQL_PASSWORD = your_password
 
-# Docker 環境
+# Docker 
 [DOCKER]
 WORKER_ACCOUNT = worker
-WORKER_PASSWORD = worker
+WORKER_PASSWORD = your_password
 RABBITMQ_HOST = rabbitmq
 RABBITMQ_PORT = 5672
 MYSQL_HOST = mysql
 MYSQL_PORT = 3306
 MYSQL_ACCOUNT = root
-MYSQL_PASSWORD = ppWgnb_mfGe2m_
+MYSQL_PASSWORD = your_password
 
-# Prod 環境(未來連雲端環境)
+# Prod 
 [PRODUCTION]
 WORKER_ACCOUNT = worker
-WORKER_PASSWORD = worker
+WORKER_PASSWORD = your_password
 RABBITMQ_HOST = rabbitmq
 RABBITMQ_PORT = 5672
 MYSQL_HOST = mysql
 MYSQL_PORT = 3306
 MYSQL_ACCOUNT = root
-MYSQL_PASSWORD = ppWgnb_mfGe2m_
+MYSQL_PASSWORD = your_password
