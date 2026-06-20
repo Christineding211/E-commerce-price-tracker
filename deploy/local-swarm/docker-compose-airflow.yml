@@ -26,6 +26,9 @@ services:
       --username admin --firstname ding --lastname christine
       --role Admin -p admin
       --email christineding0211@gmail.com
+    environment:
+      PYTHONPATH: /dataflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
     depends_on:
       - initdb
     restart: on-failure
@@ -70,6 +73,7 @@ services:
       TZ: "Asia/Taipei"
       PYTHONPATH: /dataflow
       AIRFLOW_HOME: /dataflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_CONN}
       GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp_key.json
     secrets:
       - source: gcp_service_account_key
