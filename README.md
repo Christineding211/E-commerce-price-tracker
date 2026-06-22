@@ -132,3 +132,14 @@ Staging Layer：進行資料清洗、日期標準化、價格驗證與去重。
 Fact Layer：建立每日商品價格資料，支援歷史追蹤與跨平台比較。
 Mart Layer：建立價格趨勢、平台價差、歷史最低價與價格警示資料集。
 Cloud Analytics Layer：將資料匯出至 GCS，載入 BigQuery，並串接 Looker Studio。
+```
+
+---
+
+## 🔮 未來優化方向
+
+- 擴充更多電商平台與商品類別
+- 導入 Embedding Matching 提升商品匹配品質
+- 支援多 VM Worker 水平擴展
+- 建立價格異常偵測與告警機制
+- 建置 CI/CD 自動化部署流程
