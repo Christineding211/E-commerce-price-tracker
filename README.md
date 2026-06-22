@@ -1,4 +1,4 @@
-# 📁 E-Commerce Price Monitoring Data Platform (電商價格監測資料平台)
+# E-Commerce Price Monitoring Data Platform (電商價格監測資料平台)
 
 <p align="left">
   <img src="https://img.shields.io/badge/Apache%20Airflow-017CE1?style=for-the-badge&logo=Apache%20Airflow&logoColor=white" alt="Airflow">
