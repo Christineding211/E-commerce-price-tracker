@@ -136,6 +136,56 @@ Cloud Analytics Layer：將資料匯出至 GCS，載入 BigQuery，並串接 Loo
 
 ---
 
+##  Data Warehouse 設計
+
+本專案採用分層式資料倉儲設計：
+
+```text
+Raw → Staging → Fact → Mart
+```
+## ✅ 商品匹配與資料品質 (Data Quality & Product Matching)
+
+在真實電商場景中，同一商品於不同平台往往存在多種命名方式，例如：
+
+* Sony WH-1000XM5
+* Sony WH1000XM5 Black
+* 索尼 WH-1000XM5 藍牙降噪耳機
+
+為提升跨平台分析的一致性，本專案建立商品維度表（Product Dimension），並實作基於關鍵字規則的商品匹配機制（Rule-Based Product Matching），將不同平台的商品名稱對應至統一的官方商品型號。
+
+資料品質處理包含：
+
+* **資料去重（Deduplication）**：使用 SQL Window Function 保留每日每商品唯一有效價格資料。
+* **資料標準化（Data Standardisation）**：統一日期格式、平台欄位與價格格式。
+* **跨平台商品匹配（Product Matching）**：透過商品維度表與關鍵字匹配規則，建立一致的商品維度。
+* **資料一致性（Data Consistency）**：確保不同平台商品可進行價格比較、歷史追蹤與分析。
+
+## 📈 分析指標與輸出
+
+### Product Price Timeline
+
+追蹤不同商品在 momo 與 PChome 的每日價格變化。
+
+### Platform Price Difference
+
+比較同一商品在不同平台上的價格差異。
+
+### Historical Low Price Tracking
+
+追蹤目前價格是否接近或等於歷史最低價。
+
+### Price Buffer
+
+衡量目前價格與歷史最低價之間的距離。
+
+```text
+Price Buffer = (今日價格 - 歷史最低價) / 歷史最低價
+```
+
+Price Buffer 越高，代表目前價格距離歷史低點越遠，可能仍有較大的促銷空間。
+
+---
+
 ## 🔮 未來優化方向
 
 - 擴充更多電商平台與商品類別
