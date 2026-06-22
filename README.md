@@ -8,7 +8,8 @@
   <img src="https://img.shields.io/badge/redis-%23DD0000.svg?style=for-the-badge&logo=redis&logoColor=white" alt="Redis">
 </p>
 
-> **一個以資料工程為核心的端到端（End-to-End）數據平台**，針對臺灣電商平台（momo、PChome）的藍牙降噪耳機價格進行自動化監測與維度建模。本專案重點在於展示如何應對高頻價格波動，建立穩定、具備容錯與資安保護的現代數據基礎設施。
+> 一個以資料工程為核心的端到端專案，針對臺灣電商平台的降噪耳機價格進行自動化監測。  
+> 專案涵蓋分散式資料擷取、Airflow 工作流排程、資料倉儲建模、雲端資料管線與 Looker Studio 視覺化分析。
 
 ---
 
