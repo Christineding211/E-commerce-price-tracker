@@ -13,19 +13,35 @@
 
 ---
 
-## 🚀 專案核心亮點與展示能力
+## 🎯 專案目標與商業問題
 
-本專案不僅僅是資料採集（爬蟲），而是完整實作了生產環境等級的資料工程解決方案：
+電商平台價格變動頻繁，若只依靠人工查價，很難持續追蹤不同平台與不同商品之間的價格變化。
 
-* **工作流協調與調度 (Workflow Orchestration)**：使用 **Apache Airflow** 管理管線依賴關係，建置具備自動重試與等冪性（Idempotency）的資料流。
-* **分散式高效能採集**：透過 **CeleryExecutor** 搭配 **Redis** 任務佇列，將爬蟲任務平行化分流至分散式 Worker 執行，顯著提升抓取吞吐量。
-* **企業級容器化部署**：運用 **Docker & Docker Swarm** 進行多服務叢集維護，確保地端開發與雲端環境的一致性。
-* **維度建模與數據質量**：設計符合 Kimball 理論之 **Raw → Staging → Fact → Mart** 四層數據倉庫，實作跨平台品名**模糊比對（Fuzzy Matching）**以統一商品維度。
-* **雲端安全資料管線**：建置 **MySQL → GCS → BigQuery** 的跨雲資料流，並嚴格遵循最小權限原則，利用 **IAM Service Account 與 Docker Secret** 進行憑證管理。
+本專案希望解決以下問題：
+
+- 哪個平台在特定商品上通常價格較低？
+- 今日價格是否已接近或達到歷史最低價？
+- 不同平台之間的價格差距如何變化？
+- 哪些商品仍有較大的促銷空間？
 
 ---
 
-## 🛠️ 專案架構與資料流 (System Architecture)
+## 🚀 專案核心亮點與展示能力
+
+* **工作流協調與排程（Workflow Orchestration）**：使用 **Apache Airflow** 管理資料管線任務依賴、排程、自動重試與執行狀態追蹤。
+
+* **分散式資料擷取**：透過 **CeleryExecutor** 搭配 **Redis** 任務佇列，將 momo 與 PChome 爬蟲任務分配至多個 Worker 平行執行，提升資料擷取效率。
+
+* **容器化與叢集部署**：使用 **Docker** 封裝 Airflow、MySQL、Redis 等服務，並透過 **Docker Swarm** 管理多服務部署與 Worker 節點擴展。
+
+* **資料倉儲與資料品質設計**：依循 **Kimball Data Warehouse** 思維設計 **Raw → Staging → Fact → Mart** 分層架構，實作資料清洗、去重、日期標準化與跨平台商品名稱匹配，提升資料一致性。
+
+* **雲端資料管線與權限管理**：建立 **MySQL → GCS → BigQuery** 的雲端資料流程，並使用 **IAM Service Account** 與 **Docker Secret** 管理雲端憑證。
+
+
+---
+
+## 🏗️ 專案架構與資料流 (System Architecture)
 
 <img width="729" height="304" alt="Data Pipeline" src="https://github.com/user-attachments/assets/6a2e5c7f-a11b-4a6e-b84f-e7009539693a" />
 
@@ -66,7 +82,7 @@
 ├── uv.lock                  # uv 依賴鎖定檔
 └── README.md                # 專案說明文件
 ```
-## 4. 資料來源
+## 📊 資料來源
 
 本專案蒐集臺灣電商平台 **momo** 與 **PChome** 的降噪耳機商品資料，監測品牌包含：
 
@@ -77,7 +93,7 @@
 
 主要蒐集欄位包含商品名稱、商品 ID、價格、銷售資訊、來源平台與爬取時間。
 
-## 5. 技術架構
+## 🛠️ 技術架構
 
 | 類別 | 使用技術 |
 |---|---|
@@ -89,7 +105,7 @@
 | Cloud Platform | GCP, GCS, IAM Service Account, Docker Secret |
 | Analytics | Looker Studio, SQL, Data Mart |
 
-## 7. Data Pipeline 流程
+## 🔄 Data Pipeline 流程
 
 Airflow DAG 負責管理完整資料流程：
 
