@@ -8,8 +8,8 @@ services:
       - '5672:5672'      # 開放 AMQP 通訊埠，Celery、其他服務會連這個
       - '15672:15672'    # 開放 Web 管理介面（RabbitMQ Dashboard）
     environment:
-      RABBITMQ_DEFAULT_USER: "worker"       # 預設帳號
-      RABBITMQ_DEFAULT_PASS: "worker"       # 預設密碼
+      RABBITMQ_DEFAULT_USER: ${WORKER_ACCOUNT}     # 預設帳號
+      RABBITMQ_DEFAULT_PASS: ${WORKER_PASSWORD}       # 預設密碼
       RABBITMQ_DEFAULT_VHOST: "/"           # 預設 virtual host（多租戶支援）
     # Docker Swarm 模式的設定
     deploy:
