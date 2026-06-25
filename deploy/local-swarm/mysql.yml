@@ -15,8 +15,8 @@ services:
     environment:
       MYSQL_DATABASE: headphone_db      # 啟動時自動建立的資料庫
       MYSQL_USER: user              # 建立一個普通用戶
-      MYSQL_PASSWORD: ppWgnb_mfGe2m_          # 該用戶的密碼
-      MYSQL_ROOT_PASSWORD: ppWgnb_mfGe2m_     # root 用戶密碼
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}         # 該用戶的密碼
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}     # root 用戶密碼
     volumes:
       - e-commerce-price-tracker_my_own_mysql_data:/var/lib/mysql        # 將資料庫資料持久化到 volume
     # 以下是 Docker Swarm 模式的設定
@@ -38,8 +38,8 @@ services:
       - 8080:80                    # 對外開放 phpMyAdmin 介面為 8080
     environment:
       MYSQL_USER: user             # 登入用戶
-      MYSQL_PASSWORD: ppWgnb_mfGe2m_         # 密碼
-      MYSQL_ROOT_PASSWORD: ppWgnb_mfGe2m_    # root 密碼（其實 PMA_HOST 就足夠）
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}         # 密碼
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}    # root 密碼（其實 PMA_HOST 就足夠）
       PMA_HOST: mysql              # 指定 phpMyAdmin 要連的 MySQL 主機（服務名）
       UPLOAD_LIMIT: 4096M         # ✅ 官方支援，會設置 upload/post 大小
     depends_on:
