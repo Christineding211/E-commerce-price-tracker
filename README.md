@@ -160,31 +160,51 @@ Raw → Staging → Fact → Mart
 * **跨平台商品匹配（Product Matching）**：透過商品維度表與關鍵字匹配規則，建立一致的商品維度。
 * **資料一致性（Data Consistency）**：確保不同平台商品可進行價格比較、歷史追蹤與分析。
 
-## 📈 分析指標與輸出
 
-### Product Price Timeline
+## 📈 Mart Layer 分析指標與輸出
 
-追蹤不同商品在 momo 與 PChome 的每日價格變化。
+Mart Layer 的目的是將 Fact Table 轉換成可以直接用於視覺化與商業分析的資料集，協助觀察價格趨勢、歷史低價、平台價差與促銷空間。
 
-### Platform Price Difference
+### Mart 1：商品價格趨勢分析
 
-比較同一商品在不同平台上的價格差異。
+**Data Source:** `dm_product_price_timeline`
 
-### Historical Low Price Tracking
+**重點：**
+追蹤同一商品在 momo 與 PChome 的每日價格變化，觀察商品價格是否有長期下降、短期促銷或平台價格波動。
 
-追蹤目前價格是否接近或等於歷史最低價。
+---
 
-### Price Buffer
+### Mart 2：今日破價與歷史低價監控
 
-衡量目前價格與歷史最低價之間的距離。
+**Data Source:** `mart_today_price_alerts`
+
+**重點：**
+找出今日價格是否等於或低於歷史最低價，用來快速發現可能的促銷商品或價格異常變動。
+
+---
+
+### Mart 3：市場競爭力分析
+
+**Data Source:** `mart_product_price_timeline`
+
+**重點：**
+透過 Price Buffer 衡量目前價格距離歷史最低價還有多遠，判斷商品是否仍有降價或促銷空間。
 
 ```text
 Price Buffer = (今日價格 - 歷史最低價) / 歷史最低價
 ```
-
-Price Buffer 越高，代表目前價格距離歷史低點越遠，可能仍有較大的促銷空間。
-
 ---
+### Mart 4：跨平台價差分析
+
+**Data Source:** `mart_platform_price_diff`
+
+**重點：**
+比較同一商品在 momo 與 PChome 的價格差異，判斷哪個平台在特定品牌或商品上較具價格優勢。
+
+```text
+Price Difference % = (momo_price - pchome_price) / pchome_price * 100
+```
+
 
 ## 🔮 未來優化方向
 
