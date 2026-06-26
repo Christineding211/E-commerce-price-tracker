@@ -1,4 +1,4 @@
-# E-Commerce Price Monitoring Data Platform (電商價格監測資料平台)
+## E-Commerce Price Monitoring Data Platform (電商價格監測資料平台)
 
 <p align="left">
   <img src="https://img.shields.io/badge/Apache%20Airflow-017CE1?style=for-the-badge&logo=Apache%20Airflow&logoColor=white" alt="Airflow">
@@ -8,8 +8,10 @@
   <img src="https://img.shields.io/badge/redis-%23DD0000.svg?style=for-the-badge&logo=redis&logoColor=white" alt="Redis">
 </p>
 
-> 一個以資料工程為核心的端到端專案，針對臺灣電商平台的降噪耳機價格進行自動化監測。  
-> 專案涵蓋分散式資料擷取、Airflow 工作流排程、資料倉儲建模、雲端資料管線與 Looker Studio 視覺化分析。
+
+一個以資料工程為核心的端到端專案。**本專案旨在模擬企業在真實商業場景中，追蹤競爭對手價格策略的實際需求**，並針對臺灣電商平台的降噪耳機價格進行自動化監測。
+
+專案技術架構涵蓋分散式資料擷取、Airflow 工作流排程、資料倉儲建模、雲端資料管線與 Looker Studio 視覺化分析。
 
 ---
 
