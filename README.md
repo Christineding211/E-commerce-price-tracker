@@ -30,7 +30,7 @@
 
 ## 🚀 專案核心亮點與展示能力
 
-* **工作流協調與排程（Workflow Orchestration）**：使用 **Apache Airflow** 管理資料管線任務依賴、排程、自動重試與執行狀態追蹤。
+* **工作流協調與排程（Workflow Orchestration）**：使用 **Apache Airflow** 管理資料管線任務依賴、排程與執行狀態追蹤。
 
 * **分散式資料擷取**：透過 **CeleryExecutor** 搭配 **Redis** 任務佇列，將 momo 與 PChome 爬蟲任務分配至多個 Worker 平行執行，提升資料擷取效率。
 
