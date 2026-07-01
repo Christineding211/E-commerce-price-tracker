@@ -31,7 +31,7 @@ with airflow.DAG(
 
     default_args=DEFAULT_ARGS,
     
-    schedule_interval=None,
+    schedule_interval="0 9 * * *",
     
     max_active_runs=MAX_ACTIVE_RUNS,
     
