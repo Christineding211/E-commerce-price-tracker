@@ -14,4 +14,4 @@ docker push christine0211/e-commerce-airflow:0.0.20
 
 #### deploy airflow stack
 docker stack deploy --with-registry-auth -c deploy/local-swarm/docker-compose-airflow.yml airflow
-docker stack deploy -c deploy/local-swarm/docker-compose-airflow.yml airflow
+DOCKER_IMAGE_VERSION=0.0.20 docker stack deploy --with-registry-auth -c deploy/local-swarm/docker-compose-airflow.yml airflow
