@@ -1,4 +1,4 @@
-# E-Commerce Price Monitoring Data Platform (電商價格監測資料平台)
+## E-Commerce Price Monitoring Data Platform (電商價格監測資料平台)
 
 <p align="left">
   <img src="https://img.shields.io/badge/Apache%20Airflow-017CE1?style=for-the-badge&logo=Apache%20Airflow&logoColor=white" alt="Airflow">
@@ -8,8 +8,10 @@
   <img src="https://img.shields.io/badge/redis-%23DD0000.svg?style=for-the-badge&logo=redis&logoColor=white" alt="Redis">
 </p>
 
-> 一個以資料工程為核心的端到端專案，針對臺灣電商平台的降噪耳機價格進行自動化監測。  
-> 專案涵蓋分散式資料擷取、Airflow 工作流排程、資料倉儲建模、雲端資料管線與 Looker Studio 視覺化分析。
+
+一個以資料工程為核心的端到端專案。**本專案旨在模擬企業在真實商業場景中，追蹤競爭對手價格策略的實際需求**，並針對臺灣電商平台的降噪耳機價格進行自動化監測。
+
+專案技術架構涵蓋分散式資料擷取、Airflow 工作流排程、資料倉儲建模、雲端資料管線與 Looker Studio 視覺化分析。
 
 ---
 
@@ -28,7 +30,7 @@
 
 ## 🚀 專案核心亮點與展示能力
 
-* **工作流協調與排程（Workflow Orchestration）**：使用 **Apache Airflow** 管理資料管線任務依賴、排程、自動重試與執行狀態追蹤。
+* **工作流協調與排程（Workflow Orchestration）**：使用 **Apache Airflow** 管理資料管線任務依賴、排程與執行狀態追蹤。
 
 * **分散式資料擷取**：透過 **CeleryExecutor** 搭配 **Redis** 任務佇列，將 momo 與 PChome 爬蟲任務分配至多個 Worker 平行執行，提升資料擷取效率。
 
@@ -160,31 +162,51 @@ Raw → Staging → Fact → Mart
 * **跨平台商品匹配（Product Matching）**：透過商品維度表與關鍵字匹配規則，建立一致的商品維度。
 * **資料一致性（Data Consistency）**：確保不同平台商品可進行價格比較、歷史追蹤與分析。
 
-## 📈 分析指標與輸出
 
-### Product Price Timeline
+## 📈 Mart Layer 分析指標與輸出
 
-追蹤不同商品在 momo 與 PChome 的每日價格變化。
+Mart Layer 的目的是將 Fact Table 轉換成可以直接用於視覺化與商業分析的資料集，協助觀察價格趨勢、歷史低價、平台價差與促銷空間。
 
-### Platform Price Difference
+### Mart 1：商品價格趨勢分析
 
-比較同一商品在不同平台上的價格差異。
+**Data Source:** `dm_product_price_timeline`
 
-### Historical Low Price Tracking
+**重點：**
+追蹤同一商品在 momo 與 PChome 的每日價格變化，觀察商品價格是否有長期下降、短期促銷或平台價格波動。
 
-追蹤目前價格是否接近或等於歷史最低價。
+---
 
-### Price Buffer
+### Mart 2：今日破價與歷史低價監控
 
-衡量目前價格與歷史最低價之間的距離。
+**Data Source:** `mart_today_price_alerts`
+
+**重點：**
+找出今日價格是否等於或低於歷史最低價，用來快速發現可能的促銷商品或價格異常變動。
+
+---
+
+### Mart 3：市場競爭力分析
+
+**Data Source:** `mart_product_price_timeline`
+
+**重點：**
+透過 Price Buffer 衡量目前價格距離歷史最低價還有多遠，判斷商品是否仍有降價或促銷空間。
 
 ```text
 Price Buffer = (今日價格 - 歷史最低價) / 歷史最低價
 ```
-
-Price Buffer 越高，代表目前價格距離歷史低點越遠，可能仍有較大的促銷空間。
-
 ---
+### Mart 4：跨平台價差分析
+
+**Data Source:** `mart_platform_price_diff`
+
+**重點：**
+比較同一商品在 momo 與 PChome 的價格差異，判斷哪個平台在特定品牌或商品上較具價格優勢。
+
+```text
+Price Difference % = (momo_price - pchome_price) / pchome_price * 100
+```
+
 
 ## 🔮 未來優化方向
 
