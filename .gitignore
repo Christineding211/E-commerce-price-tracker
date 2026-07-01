@@ -10,5 +10,5 @@ build/
 .venv/
 **/.env
 *.env
-deploy/env/local.inilocal.ini
+deploy/env/local.ini
 local.ini
