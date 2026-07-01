@@ -1,0 +1,14 @@
+*__pycache__/
+.vscode/
+*.pytest_cache/
+*.vscode
+.env
+*.pyc
+*.egg-info
+.cache
+build/
+.venv/
+**/.env
+*.env
+deploy/env/local.ini
+local.ini
