@@ -1,7 +1,7 @@
 
 
 DELETE FROM fct_daily_prices 
-WHERE scraped_date = '{{ ds }}';
+WHERE scraped_date = '{{ data_interval_end.in_timezone("Asia/Taipei").strftime("%Y-%m-%d") }}';
 
 -- 2. 天天執行的增量精準比對
 INSERT INTO fct_daily_prices (scraped_date, brand, official_model_name, platform, original_code, price)
@@ -12,7 +12,7 @@ FROM (
         ROW_NUMBER() OVER(PARTITION BY momo.ID, momo.scraped_date ORDER BY LENGTH(dim.keyword) DESC) AS rank_id
     FROM stg_momo_prices momo
     JOIN dim_products dim ON LOWER(momo.Name) LIKE CONCAT('%', dim.keyword, '%')
-    WHERE momo.scraped_date = '{{ ds }}'
+    WHERE momo.scraped_date = '{{ data_interval_end.in_timezone("Asia/Taipei").strftime("%Y-%m-%d") }}'
       -- 排除 momo 的福利品與整新品
       AND momo.Name NOT LIKE '%福利品%'
       AND momo.Name NOT LIKE '%整新品%'
@@ -25,7 +25,7 @@ FROM (
         ROW_NUMBER() OVER(PARTITION BY pch.ID, pch.scraped_date ORDER BY LENGTH(dim.keyword) DESC) AS rank_id
     FROM stg_pchome_prices pch
     JOIN dim_products dim ON LOWER(pch.Name) LIKE CONCAT('%', dim.keyword, '%')
-    WHERE pch.scraped_date = '{{ ds }}'
+    WHERE pch.scraped_date = '{{ data_interval_end.in_timezone("Asia/Taipei").strftime("%Y-%m-%d") }}'
       -- 排除 PChome 的福利品與整新品
       AND pch.Name NOT LIKE '%福利品%'
       AND pch.Name NOT LIKE '%整新品%'

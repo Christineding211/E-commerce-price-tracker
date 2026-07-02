@@ -6,6 +6,9 @@ from airflow.providers.google.cloud.transfers.mysql_to_gcs import MySQLToGCSOper
 
 
 TABLE_NAME = "product_price_timeline"
+EXPORT_DATE_NODASH = (
+    '{{ data_interval_end.in_timezone("Asia/Taipei").strftime("%Y%m%d") }}'
+)
 
 
 def _get_env(name: str, default: str = "") -> str:
@@ -38,11 +41,11 @@ def create_product_price_timeline_cloud_tasks():
 
     gcs_object = (
         "mysql_exports/product_price_timeline/"
-        "product_price_timeline_{{ ds_nodash }}_{}.csv"
+        f"product_price_timeline_{EXPORT_DATE_NODASH}_{{}}.csv"
     )
     gcs_load_pattern = (
         "mysql_exports/product_price_timeline/"
-        "product_price_timeline_{{ ds_nodash }}_*.csv"
+        f"product_price_timeline_{EXPORT_DATE_NODASH}_*.csv"
     )
 
     validate_config_task = PythonOperator(

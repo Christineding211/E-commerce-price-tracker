@@ -1,5 +1,7 @@
 import datetime  # 匯入 datetime 模組，用來設定時間參數
 
+import pendulum
+
 # 預設參數，會套用在 DAG 與 Task 中
 DEFAULT_ARGS = {
     # DAG/Task 的負責人，顯示在 Airflow UI 中
@@ -9,7 +11,7 @@ DEFAULT_ARGS = {
     # 每次重試間隔 1 分鐘
     "retry_delay": datetime.timedelta(minutes=1),
     # DAG 開始生效的時間, 此電商專案不適用
-    "start_date": datetime.datetime(2022, 1, 1),
+    "start_date": pendulum.datetime(2022, 1, 1, tz="Asia/Taipei"),
     # 單一 task 最長可執行 60 分鐘，超時則視為失敗
     "execution_timeout": datetime.timedelta(minutes=60),
     # 限制 DAG 同時最多執行 10 個 task

@@ -2,7 +2,7 @@
 
 -- if scraped failed, delete that day data to ensure no duplicated 
 DELETE FROM stg_momo_prices 
-WHERE scraped_date = '{{ ds }}';
+WHERE scraped_date = '{{ data_interval_end.in_timezone("Asia/Taipei").strftime("%Y-%m-%d") }}';
 
 INSERT INTO stg_momo_prices (
     ID, 
@@ -29,7 +29,7 @@ WITH deduplicated AS (
             ORDER BY scraped_at ASC
         ) AS row_num
     FROM raw_momo_prices
-    WHERE DATE(scraped_at) = '{{ ds }}'
+    WHERE DATE(scraped_at) = '{{ data_interval_end.in_timezone("Asia/Taipei").strftime("%Y-%m-%d") }}'
 )
 
 SELECT 
@@ -43,5 +43,4 @@ SELECT
     scraped_at
 FROM deduplicated
 WHERE row_num = 1;
-
 
