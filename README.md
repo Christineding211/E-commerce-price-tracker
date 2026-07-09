@@ -195,8 +195,11 @@ Price Buffer = (Current Price - Historical Lowest Price) / Historical Lowest Pri
 
 Price Difference % = (momo_price - pchome_price) / pchome_price * 100
 ```
-Dashboard Preview
-<!-- Replace this with your Looker Studio dashboard screenshot --> <img width="900" alt="Looker Studio Dashboard" src="YOUR_DASHBOARD_IMAGE_URL" />
+## Dashboard Preview
+
+The dashboard provides interactive analysis of historical price trends, price buffer, cross-platform price differences and market supply.
+
+<img src="./images/dashboard_overview.png" width="900" alt="Looker Studio Dashboard">
 
 ## 🔮 Future Improvements
 - Expand to more e-commerce platforms and product categories.
