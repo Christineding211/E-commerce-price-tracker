@@ -92,7 +92,8 @@ This project aims to answer the following questions:
 ├── uv.lock
 └── README.md
 ```
-📊 Data Sources
+
+## 📊 Data Sources
 The monitored brands include:
 
 Sony,
@@ -141,11 +142,30 @@ The main pipeline stages are:
 - Mart Layer: Creates datasets for price trends, platform price differences, historical lowest prices and price monitoring.
 - Cloud Analytics Layer: Exports processed data to GCS, loads it into BigQuery and connects it to Looker Studio.
 
-Data Warehouse Design
+## 🗄️Data Warehouse Design
 
 This project uses a layered data warehouse design:
 ```text
-Raw → Staging → Fact → Mart
+┌─────────────┐
+│    Raw      │
+│ Source Data │
+└──────┬──────┘
+       │
+┌──────▼──────┐
+│  Staging    │
+│ Clean &     │
+│ Standardise │
+└──────┬──────┘
+       │
+┌──────▼──────┐
+│    Fact     │
+│ Daily Price │
+└──────┬──────┘
+       │
+┌──────▼──────┐
+│    Mart     │
+│ Analytics   │
+└─────────────┘
 ```
 The purpose of this structure is to separate raw source data from cleaned, standardised and analysis-ready datasets. This improves traceability, data quality and the ability to rerun specific parts of the pipeline when needed.
 
