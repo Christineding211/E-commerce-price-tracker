@@ -185,7 +185,7 @@ Data quality checks include:
 
 - Product Price Trend Analysis: Tracks daily price movements for each product across Momo and PChome.
 - Historical Low Price Monitoring: Identifies whether today's price is equal to or lower than the historical lowest price.
-- Price Buffer Analysis: Measures how far the current price is from the historical lowest price.
+- Price Buffer Analysis & Market Supply Matrix: Measures how far the current price is from its historical lowest price, with bubble size representing the average number of active listings.
 - Cross-platform Price Difference Analysis: Compares the same product across platforms to identify price advantages.
 
 ```text
