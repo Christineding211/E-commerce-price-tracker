@@ -138,7 +138,7 @@ Cloud Analytics Layer：將資料匯出至 GCS，載入 BigQuery，並串接 Loo
 
 ---
 
-##  Data Warehouse 設計
+## 🗄️ Data Warehouse 設計
 
 本專案採用分層式資料倉儲設計：
 
