@@ -199,7 +199,7 @@ Price Difference % = (momo_price - pchome_price) / pchome_price * 100
 
 The dashboard provides interactive analysis of historical price trends, price buffer, cross-platform price differences and market supply.
 
-<img src="./images/dashboard_overview.png" width="900" alt="Looker Studio Dashboard">
+👉 **[View Dashboard Walkthrough](docs/dashboard.md)**
 
 ## 🔮 Future Improvements
 - Expand to more e-commerce platforms and product categories.
