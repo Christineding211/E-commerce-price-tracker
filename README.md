@@ -51,7 +51,8 @@ This project aims to answer the following questions:
 
 ## 🏗️ System Architecture
 
-<img width="729" height="304" alt="Data Pipeline" src="https://github.com/user-attachments/assets/6a2e5c7f-a11b-4a6e-b84f-e7009539693a" />
+<img width="742" height="318" alt="architecture" src="https://github.com/user-attachments/assets/37c2cc93-f8cd-4182-a20c-bf45776da2d4" />
+
 
 ### Core Components
 
