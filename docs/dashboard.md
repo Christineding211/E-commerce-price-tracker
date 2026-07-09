@@ -6,7 +6,7 @@ This page presents the key dashboards built on the Mart layer.
 
 ## 📈 Product Price Trend
 
-Tracks daily price movements across momo and PChome.
+Tracks daily price movements across momo and PChome, using the Sony WH-1000XM5 as an example.
 
 <img src="../images/product_price_trend.png" width="100%">
 
