@@ -182,14 +182,12 @@ Data quality checks include:
 - Consistent product dimensions for price comparison and historical tracking
 
   ## 📈 Analytics Outputs
-  The Mart layer converts the Fact table into reporting-ready datasets for business analysis and dashboarding.
+The Mart layer converts the Fact table into reporting-ready datasets for business analysis and dashboarding.
 
-It supports the following analytical outputs:
-
-Product Price Trend Analysis: Tracks daily price movements for each product across Momo and PChome.
-Historical Low Price Monitoring: Identifies whether today's price is equal to or lower than the historical lowest price.
-Price Buffer Analysis: Measures how far the current price is from the historical lowest price.
-Cross-platform Price Difference Analysis: Compares the same product across platforms to identify price advantages.
+- Product Price Trend Analysis: Tracks daily price movements for each product across Momo and PChome.
+- Historical Low Price Monitoring: Identifies whether today's price is equal to or lower than the historical lowest price.
+- Price Buffer Analysis: Measures how far the current price is from the historical lowest price.
+- Cross-platform Price Difference Analysis: Compares the same product across platforms to identify price advantages.
 
 ```text
 
