@@ -1,4 +1,8 @@
-## E-Commerce Price Monitoring Data Platform (電商價格監測資料平台)
+# E-Commerce Price Monitoring Data Platform
+
+<p align="right">
+  <strong>🇬🇧 English</strong> | <a href="./README.zh-TW.md">🇹🇼 繁體中文</a>
+</p>
 
 <p align="left">
   <img src="https://img.shields.io/badge/Apache%20Airflow-017CE1?style=for-the-badge&logo=Apache%20Airflow&logoColor=white" alt="Airflow">
@@ -8,210 +12,177 @@
   <img src="https://img.shields.io/badge/redis-%23DD0000.svg?style=for-the-badge&logo=redis&logoColor=white" alt="Redis">
 </p>
 
+> An end-to-end data engineering project for monitoring the prices of noise-cancelling headphones across Taiwan's two major e-commerce platforms, Momo and PChome.
+>
+> Built with Apache Airflow, Docker, MySQL, GCS and BigQuery, the platform collects, transforms and models pricing data into data marts for historical price tracking, cross-platform price comparison and Looker Studio dashboards.
 
-一個以資料工程為核心的端到端專案。**本專案旨在模擬企業在真實商業場景中，追蹤競爭對手價格策略的實際需求**，並針對臺灣電商平台的降噪耳機價格進行自動化監測。
+This project addresses a common retail challenge: tracking competitor pricing across multiple e-commerce platforms without relying on manual price checks.
 
-專案技術架構涵蓋分散式資料擷取、Airflow 工作流排程、資料倉儲建模、雲端資料管線與 Looker Studio 視覺化分析。
-
----
-
-## 🎯 專案目標與商業問題
-
-電商平台價格變動頻繁，若只依靠人工查價，很難持續追蹤不同平台與不同商品之間的價格變化。
-
-本專案希望解決以下問題：
-
-- 哪個平台在特定商品上通常價格較低？
-- 今日價格是否已接近或達到歷史最低價？
-- 不同平台之間的價格差距如何變化？
-- 哪些商品仍有較大的促銷空間？
-
----
-
-## 🚀 專案核心亮點與展示能力
-
-* **工作流協調與排程（Workflow Orchestration）**：使用 **Apache Airflow** 管理資料管線任務依賴、排程與執行狀態追蹤。
-
-* **分散式資料擷取**：透過 **CeleryExecutor** 搭配 **Redis** 任務佇列，將 momo 與 PChome 爬蟲任務分配至多個 Worker 平行執行，提升資料擷取效率。
-
-* **容器化與叢集部署**：使用 **Docker** 封裝 Airflow、MySQL、Redis 等服務，並透過 **Docker Swarm** 管理多服務部署與 Worker 節點擴展。
-
-* **資料倉儲與資料品質設計**：依循 **Kimball Data Warehouse** 思維設計 **Raw → Staging → Fact → Mart** 分層架構，實作資料清洗、去重、日期標準化與跨平台商品名稱匹配，提升資料一致性。
-
-* **雲端資料管線與權限管理**：建立 **MySQL → GCS → BigQuery** 的雲端資料流程，並使用 **IAM Service Account** 與 **Docker Secret** 管理雲端憑證。
 
 
 ---
 
-## 🏗️ 專案架構與資料流 (System Architecture)
+## 🎯 Business Questions
+
+E-commerce prices change frequently, making it difficult to track price movements manually across platforms, brands and products.
+
+This project aims to answer the following questions:
+
+- Which platform usually offers a lower price for a specific product?
+- Is today's price close to, or equal to, the historical lowest price?
+- How does the price difference between platforms change over time?
+- Which products still have room for further discounts or promotions?
+
+---
+
+## 🚀 Key Highlights
+
+- **Workflow Orchestration**: Used Apache Airflow to manage task dependencies, scheduling and pipeline execution.
+
+- **Distributed Data Ingestion**: Used CeleryExecutor with Redis to distribute Momo and PChome scraping tasks across multiple workers for parallel execution.
+
+- **Containerisation and Deployment**: Containerised Airflow, MySQL and Redis with Docker, and used Docker Swarm to manage multi-service deployment.
+
+- **Data Warehouse Design**: Designed a Kimball-style Raw → Staging → Fact → Mart model with deduplication, date standardisation and product matching.
+
+- **Cloud Data Pipeline**: Built a MySQL → GCS → BigQuery data pipeline, using an IAM Service Account and Docker Secret for secure credential management.
+
+---
+
+## 🏗️ System Architecture
 
 <img width="729" height="304" alt="Data Pipeline" src="https://github.com/user-attachments/assets/6a2e5c7f-a11b-4a6e-b84f-e7009539693a" />
 
-### 核心元件說明
+### Core Components
 
-* **Apache Airflow**：負責排程與協調整體 Data Pipeline
-* **CeleryExecutor**：將爬蟲任務分散至多個 Worker 平行執行
-* **Redis**：作為 Celery Message Broker，負責暫存和分派任務
-* **Flower**：監控 Worker 狀態、任務執行情況與 Queue 使用狀態
-* **MySQL**：實作 Raw → Staging → Fact 資料倉儲分層
-* **Google Cloud Storage (GCS)**：作為 MySQL 與 BigQuery 間的資料交換層
-* **BigQuery**：建立 Mart 與分析資料集，提供 Looker Studio 查詢
-* **Looker Studio**：建立價格趨勢、平台價差與歷史價格分析儀表板
+- **Apache Airflow**: Orchestrates and schedules the overall data pipeline.
+- **CeleryExecutor**: Distributes scraping tasks across multiple workers.
+- **Redis**: Acts as the Celery message broker for task queuing and distribution.
+- **Flower**: Monitors worker status, task execution and queue usage.
+- **MySQL**: Stores Raw, Staging and Fact layer data.
+- **Google Cloud Storage (GCS)**: Acts as the intermediate storage layer between MySQL and BigQuery.
+- **BigQuery**: Stores analytical marts and reporting datasets.
+- **Looker Studio**: Provides dashboards for price trends, platform price differences and historical price analysis.
 
+---
 
-## 📁 專案目錄結構 (Project Structure)
+## 📁 Project Structure
+
 ```text
 .
-├── crawler/                 # momo 與 PChome 資料擷取模組
-│   ├── config.py            # 爬蟲設定與環境參數讀取
-│   └── tasks_crawler.py     # 商品資料擷取、欄位解析與資料寫入邏輯
-├── dataflow/                # Airflow 工作流排程與 ETL 流程
+├── crawler/                 # Data ingestion modules for Momo and PChome
+│   ├── config.py            # Crawler configuration and environment variable loading
+│   └── tasks_crawler.py     # Product scraping, field parsing and database insertion logic
+├── dataflow/                # Airflow workflows and ETL processes
 │   ├── dags/
-│   │   └── trigger_producer.py  # Airflow 主 DAG，串接資料擷取、轉換與雲端載入流程
-│   └── etl/                 # Data Warehouse 分層轉換邏輯
-│       ├── refresh_stg_*.py     # Staging 層：資料清洗、格式標準化與去重
-│       ├── refresh_fct_daily.py # Fact 層：每日商品價格彙整與跨平台商品匹配
-│       ├── export_*_to_bigquery.py # 將處理後資料匯出至 GCS 並載入 BigQuery
-│       └── sql/                 # Raw → Staging → Fact 轉換 SQL
-├── deploy/                  # Docker Swarm 與 GCP 部署設定
-│   ├── env/                 # 環境變數樣板與設定產生工具
-│   ├── local-swarm/         # 本機 Docker Swarm 部署設定
-│   └── gcp-single-vm/       # GCP 單機 VM 部署設定
-├── docs/                    # 專案文件、部署筆記與架構紀錄
-├── scripts/                 # 連線測試與資料匯出輔助腳本
-├── archived/                # 舊版架構、測試檔案與歷史實驗紀錄
-├── pyproject.toml           # Python 專案依賴管理
-├── uv.lock                  # uv 依賴鎖定檔
-└── README.md                # 專案說明文件
+│   │   └── trigger_producer.py  # Main Airflow DAG
+│   └── etl/                 # Data warehouse transformation logic
+│       ├── refresh_stg_*.py
+│       ├── refresh_fct_daily.py
+│       ├── export_*_to_bigquery.py
+│       └── sql/
+├── deploy/                  # Docker Swarm and GCP deployment configuration
+│   ├── env/
+│   ├── local-swarm/
+│   └── gcp-single-vm/
+├── docs/                    # Project documentation and deployment notes
+├── scripts/                 # Helper scripts
+├── archived/                # Legacy architecture and experiments
+├── pyproject.toml
+├── uv.lock
+└── README.md
 ```
-## 📊 資料來源
+📊 Data Sources
+The monitored brands include:
 
-本專案蒐集臺灣電商平台 **momo** 與 **PChome** 的降噪耳機商品資料，監測品牌包含：
+Sony,
+Sennheiser,
+JLab,
+Soundcore
 
-- Sony
-- Sennheiser
-- JLab
-- Soundcore
+The main fields collected include product name, product ID, price, sales information, source platform and scraping timestamp.
 
-主要蒐集欄位包含商品名稱、商品 ID、價格、銷售資訊、來源平台與爬取時間。
-
-## 🛠️ 技術架構
-
-| 類別 | 使用技術 |
-|---|---|
-| Workflow Orchestration | Apache Airflow, CeleryExecutor |
-| Data Ingestion | Python, Requests, JSON parsing |
+## 🛠️ Technical Stack
+| Category                  | Technologies                                 |
+| ------------------------- | -------------------------------------------- |
+| Workflow Orchestration    | Apache Airflow, CeleryExecutor               |
+| Data Ingestion            | Python, Requests, JSON parsing               |
 | Database / Data Warehouse | MySQL, BigQuery, Raw / Staging / Fact / Mart |
-| Containerisation | Docker, Docker Swarm |
-| Message Broker / Worker | Redis, Airflow Worker |
-| Cloud Platform | GCP, GCS, IAM Service Account, Docker Secret |
-| Analytics | Looker Studio, SQL, Data Mart |
+| Containerisation          | Docker, Docker Swarm                         |
+| Message Broker / Worker   | Redis, Airflow Worker                        |
+| Cloud Platform            | GCP, GCS, IAM Service Account, Docker Secret |
+| Analytics                 | Looker Studio, SQL, Data Mart                |
 
-## 🔄 Data Pipeline 流程
-
-Airflow DAG 負責管理完整資料流程：
-
+## 🔄 Data Pipeline
+The Airflow DAG manages the full data pipeline:
 ```text
 Scrape momo / PChome
         ↓
-Load Raw Data to MySQL
+Load raw data into MySQL
         ↓
-Refresh Staging Layer
+Refresh Staging layer
         ↓
-Refresh Fact Table
+Refresh Fact table
         ↓
 Export to GCS
         ↓
-Load to BigQuery
+Load into BigQuery
         ↓
 Visualise in Looker Studio
 
-主要流程包含：
-
-Data Ingestion：蒐集 momo 與 PChome 商品價格資料。
-Raw Layer：保留平台原始資料，支援追溯與重跑。
-Staging Layer：進行資料清洗、日期標準化、價格驗證與去重。
-Fact Layer：建立每日商品價格資料，支援歷史追蹤與跨平台比較。
-Mart Layer：建立價格趨勢、平台價差、歷史最低價與價格警示資料集。
-Cloud Analytics Layer：將資料匯出至 GCS，載入 BigQuery，並串接 Looker Studio。
 ```
 
----
+The main pipeline stages are:
 
-##  Data Warehouse 設計
+- Data Ingestion: Collects product price data from Momo and PChome.
+- Raw Layer: Stores platform-level raw data for traceability and reprocessing.
+- Staging Layer: Cleans data, standardises dates, validates prices and removes duplicates.
+- Fact Layer: Builds daily product price records for historical tracking and cross-platform comparison.
+- Mart Layer: Creates datasets for price trends, platform price differences, historical lowest prices and price monitoring.
+- Cloud Analytics Layer: Exports processed data to GCS, loads it into BigQuery and connects it to Looker Studio.
 
-本專案採用分層式資料倉儲設計：
+Data Warehouse Design
 
+This project uses a layered data warehouse design:
 ```text
 Raw → Staging → Fact → Mart
 ```
-## ✅ 商品匹配與資料品質 (Data Quality & Product Matching)
+The purpose of this structure is to separate raw source data from cleaned, standardised and analysis-ready datasets. This improves traceability, data quality and the ability to rerun specific parts of the pipeline when needed.
 
-在真實電商場景中，同一商品於不同平台往往存在多種命名方式，例如：
+## ✅ Data Quality and Product Matching
+The same product may appear under different names across platforms, such as `Sony WH-1000XM5`, `Sony WH1000XM5 Black` 
 
-* Sony WH-1000XM5
-* Sony WH1000XM5 Black
-* 索尼 WH-1000XM5 藍牙降噪耳機
+To support reliable cross-platform comparison, I created a product dimension table and used rule-based keyword matching to map platform-specific names to standard product models.
 
-為提升跨平台分析的一致性，本專案建立商品維度表（Product Dimension），並實作基於關鍵字規則的商品匹配機制（Rule-Based Product Matching），將不同平台的商品名稱對應至統一的官方商品型號。
+Data quality checks include:
 
-資料品質處理包含：
+- Deduplication using SQL window functions
+- Date, platform and price standardisation
+- Cross-platform product matching
+- Consistent product dimensions for price comparison and historical tracking
 
-* **資料去重（Deduplication）**：使用 SQL Window Function 保留每日每商品唯一有效價格資料。
-* **資料標準化（Data Standardisation）**：統一日期格式、平台欄位與價格格式。
-* **跨平台商品匹配（Product Matching）**：透過商品維度表與關鍵字匹配規則，建立一致的商品維度。
-* **資料一致性（Data Consistency）**：確保不同平台商品可進行價格比較、歷史追蹤與分析。
+  ## 📈 Analytics Outputs
+  The Mart layer converts the Fact table into reporting-ready datasets for business analysis and dashboarding.
 
+It supports the following analytical outputs:
 
-## 📈 Mart Layer 分析指標與輸出
-
-Mart Layer 的目的是將 Fact Table 轉換成可以直接用於視覺化與商業分析的資料集，協助觀察價格趨勢、歷史低價、平台價差與促銷空間。
-
-### Mart 1：商品價格趨勢分析
-
-**Data Source:** `dm_product_price_timeline`
-
-**重點：**
-追蹤同一商品在 momo 與 PChome 的每日價格變化，觀察商品價格是否有長期下降、短期促銷或平台價格波動。
-
----
-
-### Mart 2：今日破價與歷史低價監控
-
-**Data Source:** `mart_today_price_alerts`
-
-**重點：**
-找出今日價格是否等於或低於歷史最低價，用來快速發現可能的促銷商品或價格異常變動。
-
----
-
-### Mart 3：市場競爭力分析
-
-**Data Source:** `mart_product_price_timeline`
-
-**重點：**
-透過 Price Buffer 衡量目前價格距離歷史最低價還有多遠，判斷商品是否仍有降價或促銷空間。
+Product Price Trend Analysis: Tracks daily price movements for each product across Momo and PChome.
+Historical Low Price Monitoring: Identifies whether today's price is equal to or lower than the historical lowest price.
+Price Buffer Analysis: Measures how far the current price is from the historical lowest price.
+Cross-platform Price Difference Analysis: Compares the same product across platforms to identify price advantages.
 
 ```text
-Price Buffer = (今日價格 - 歷史最低價) / 歷史最低價
-```
----
-### Mart 4：跨平台價差分析
 
-**Data Source:** `mart_platform_price_diff`
+Price Buffer = (Current Price - Historical Lowest Price) / Historical Lowest Price
 
-**重點：**
-比較同一商品在 momo 與 PChome 的價格差異，判斷哪個平台在特定品牌或商品上較具價格優勢。
-
-```text
 Price Difference % = (momo_price - pchome_price) / pchome_price * 100
 ```
+Dashboard Preview
+<!-- Replace this with your Looker Studio dashboard screenshot --> <img width="900" alt="Looker Studio Dashboard" src="YOUR_DASHBOARD_IMAGE_URL" />
 
-
-## 🔮 未來優化方向
-
-- 擴充更多電商平台與商品類別
-- 導入 Embedding Matching 提升商品匹配品質
-- 支援多 VM Worker 水平擴展
-- 建立價格異常偵測與告警機制
-- 建置 CI/CD 自動化部署流程
+## 🔮 Future Improvements
+Expand to more e-commerce platforms and product categories.
+Introduce embedding-based matching to improve product matching quality.
+Support horizontal scaling across multiple VM workers.
+Build price anomaly detection and notification mechanisms.
+Add CI/CD automation for deployment.
