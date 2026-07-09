@@ -201,8 +201,8 @@ Dashboard Preview
 <!-- Replace this with your Looker Studio dashboard screenshot --> <img width="900" alt="Looker Studio Dashboard" src="YOUR_DASHBOARD_IMAGE_URL" />
 
 ## 🔮 Future Improvements
-Expand to more e-commerce platforms and product categories.
-Introduce embedding-based matching to improve product matching quality.
-Support horizontal scaling across multiple VM workers.
-Build price anomaly detection and notification mechanisms.
-Add CI/CD automation for deployment.
+- Expand to more e-commerce platforms and product categories.
+- Introduce embedding-based matching to improve product matching quality.
+- Support horizontal scaling across multiple VM workers.
+- Build price anomaly detection and notification mechanisms.
+- Add CI/CD automation for deployment.
