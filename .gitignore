@@ -12,3 +12,4 @@ build/
 *.env
 deploy/env/local.ini
 local.ini
+dataflow/logs/
