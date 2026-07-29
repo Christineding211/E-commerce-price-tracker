@@ -1,5 +1,8 @@
 #dbt 裡通常會先建立一個 CTE
 
+#1.可讀性更好：一眼就知道整張 以 stg_daily_prices 為來源。
+#2. 維護方便：如果未來需要在來源加一個欄位或過濾條件，只要改 daily_prices 這個 CTE，不用改三個地方。
+
 WITH daily_prices AS (
 
     SELECT *
