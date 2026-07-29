@@ -50,4 +50,4 @@ LEFT JOIN raw_daily_min r
     ON s.scraped_date = r.scraped_date 
     AND s.brand = r.brand 
     AND s.official_model_name = r.official_model_name 
-    AND s.platform = r.platform;
+    AND s.platform = r.platform
