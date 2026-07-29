@@ -1,9 +1,17 @@
+#dbt 裡通常會先建立一個 CTE
 
-WITH unique_dates AS (
-    SELECT DISTINCT scraped_date FROM {{ ref('stg_daily_prices') }}
+WITH daily_prices AS (
+
+    SELECT *
+    FROM {{ ref('stg_daily_prices') }}
+
+),
+
+unique_dates AS (
+    SELECT DISTINCT scraped_date FROM daily_prices
 ),
 unique_products AS (
-    SELECT DISTINCT brand, official_model_name, platform FROM {{ ref('stg_daily_prices') }}
+    SELECT DISTINCT brand, official_model_name, platform FROM daily_prices
 ),
 date_spine AS (
     SELECT d.scraped_date, p.brand, p.official_model_name, p.platform
@@ -16,7 +24,7 @@ raw_daily_min AS (
         MIN(price) AS raw_min_price,
         -- 【改動地方 1】：先在這裡把當天的原始賣場數量算出來
         COUNT(original_code) AS raw_total_listings
-    FROM {{ ref('stg_daily_prices') }}
+    FROM daily_prices
     GROUP BY scraped_date, brand, official_model_name, platform
 )
 SELECT 
