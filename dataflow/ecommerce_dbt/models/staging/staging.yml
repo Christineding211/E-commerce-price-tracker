@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: stg_daily_prices
+    description: Cleaned daily product prices from BigQuery source.
+
+    columns:
+
+      - name: scraped_date
+        tests:
+          - not_null
+
+      - name: brand
+        tests:
+          - not_null
+
+      - name: official_model_name
+        tests:
+          - not_null
+
+      - name: platform
+        tests:
+          - not_null
+
+      - name: price
+        tests:
+          - not_null
